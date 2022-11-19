@@ -58,7 +58,7 @@ public class ParserTest {
 		parser = new Parser(testPlayer);
 
 		System.out.println(PlayerManager.playerlist.contains(testPlayer));
-		testPlayer.increaseKickCounter(5, "kick!");
+		testPlayer.kick("kick!");
 		System.out.println(PlayerManager.playerlist.contains(testPlayer));
 	}
 
