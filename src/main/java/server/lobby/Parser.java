@@ -97,8 +97,7 @@ public class Parser {
 					if (checkPacket(parts, 2,
 							new String[] { "string", "string" })) {
 						if (player.getLobby() != null) {
-							LobbyLogic.lobbyMessage(this.player, parts[1],
-									this.player.lobby.getLobbyID());
+							LobbyLogic.lobbyMessage(this.player, parts[1]);
 						} else {
 							ServerGUI.addToConsole("Player: "
 									+ player.getName()

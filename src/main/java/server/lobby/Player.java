@@ -105,7 +105,6 @@ public class Player {
 	}
 
 	public void kick(String msg) {
-
 		commandQueue.add("SKICK:" + msg);
 		try {
 			Thread.sleep(200);
@@ -126,5 +125,9 @@ public class Player {
 	 */
 	public void setLegitPlayer(int legitPlayer) {
 		this.legitPlayer = legitPlayer;
+	}
+
+	public void send(String packet) {
+		commandQueue.add(packet);
 	}
 }

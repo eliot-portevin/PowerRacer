@@ -422,7 +422,7 @@ public class LobbyLogicTest {
 	/**
 	 * Test method for asserting that a lobby message reaches the players in the
 	 * same lobby. lobby
-	 * {@link server.lobby.LobbyLogic#lobbyMessage(server.lobby.Player, java.lang.String, int)}
+	 * {@link #lobbyMessage(Player, String)}
 	 * .
 	 */
 	@Test
@@ -441,10 +441,9 @@ public class LobbyLogicTest {
 		testPlayerCopy.commandQueue.clear();
 
 		// let the first player write into the lobby.
-		LobbyLogic.lobbyMessage(testPlayer, message, testPlayer.getLobby()
-				.getLobbyID());
+		LobbyLogic.lobbyMessage(testPlayer, message);
 
-		// check the assert on the second player.
+		// check the assertion on the second player.
 		assertEquals(assertionPacket, testPlayerCopy.commandQueue.remove());
 
 		// the players need to leave the lobby

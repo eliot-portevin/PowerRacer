@@ -156,11 +156,9 @@ public class LobbyLogic {
 	 * 
 	 * @param msg
 	 *            the Message from the player to the lobby
-	 * @param lobbyID
-	 *            where the message gets sent to
 	 */
-	public static void lobbyMessage(Player player, String msg, int lobbyID) {
-		ChatLogic.lobbyMessage(player, msg, player.lobby.getLobbyID());
+	public static void lobbyMessage(Player player, String msg) {
+		ChatLogic.lobbyMessage(player, msg);
 	}
 
 	/**
