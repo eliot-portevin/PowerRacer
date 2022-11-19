@@ -1,13 +1,13 @@
 package shared.game;
 
 import java.util.*;
+
 import shared.game.powerup.Powerup;
 
 /**
  * Car Object represents the logics of the Car.
- * 
- * @author simeon
  *
+ * @author simeon
  */
 
 public class Car {
@@ -26,27 +26,18 @@ public class Car {
 
 	public Powerup powerup;
 
-	public static final byte RACER = 0, PACER = 1, DRAGSTER = 2, SPEEDSTER = 3,
-			TRACTOR = 4;
-	public static final String[] CAR_NAMES = { "Racer", "Pacer", "Dragster",
-			"Speedster", "Tractor" };
+	public static final byte RACER = 0, PACER = 1, DRAGSTER = 2, SPEEDSTER = 3, TRACTOR = 4;
+	public static final String[] CAR_NAMES = {"Racer", "Pacer", "Dragster", "Speedster", "Tractor"};
 
 	/*
-	 * The value below will be loaded by another file and is placed here to
-	 * test.
-	 */
-	double frictionFactor = 0.1;
-
-	/*
-	 * Default Value for carconstructor.
+	 * Default Value for car constructor.
 	 */
 	private String carName = "Default";
 	private int imageNum = 0;
 	private double acceleration = 1.3;
 	private double breaking = -1;
 	private double handling = Math.PI / 24; // How much the car will rotate per
-	private PowerRacerGame game;
-	private ArrayList<MagicLine> MagicLineList;
+	private final PowerRacerGame game;
 	int carType;
 
 	// calculation interval
@@ -64,88 +55,72 @@ public class Car {
 		 * This constructor chooses which car should be created.
 		 */
 		switch (carType) {
-			case 0:
+			case RACER -> {
 				acceleration = 1.4;
 				breaking = -0.5;
 				handling = Math.PI / 30;
 				carName = "Racer";
 				imageNum = 0;
-				break;
-			case 1:
+			}
+			case PACER -> {
 				acceleration = 1.42;
-				breaking = -1;
 				handling = Math.PI / 32;
 				carName = "Pacer";
 				imageNum = 1;
-				break;
-			case 2:
+			}
+			case DRAGSTER -> {
 				acceleration = 1.6;
 				breaking = -0.4;
 				handling = Math.PI / 48;
 				carName = "Dragster";
 				imageNum = 2;
-				break;
-			case 3:
+			}
+			case SPEEDSTER -> {
 				acceleration = 1.45;
-				breaking = -1;
-				handling = Math.PI / 24;
 				carName = "Speedster";
 				imageNum = 3;
-				break;
-			case 4:
+			}
+			case TRACTOR -> {
 				acceleration = 1.35;
-				breaking = -1;
-				handling = Math.PI / 24;
 				carName = "Tractor";
 				imageNum = 4;
-				break;
-			case 5:
-				// TODO: Add different cartypes
-			default:
-				// Car has default values
-				break;
+			}
+			default -> {
+			}
+			// Car has default values
 		}
 
 	}
 
-	/*
-	 * Only call this constructor to test and create a default car with default
-	 * properties.
-	 */
 
 	/*
 	 * Functions to handle car movement through keyboard input.
 	 */
 
 	/*
-	 * acceleration formula: v = v + a - (v * friction)
+	 * Acceleration formula: v = v + a - (v * friction)
 	 */
 	protected void accelerate(double friction) {
 		speed = speed + acceleration - (speed * friction);
-		// System.out.println(printInfo());
 	}
 
 	protected void slowDown(double friction) {
 		speed = speed - breaking - (speed * friction);
-		// System.out.println(printInfo());
 	}
 
 	protected void turnLeft() {
 		rotation = (rotation + handling) % (2 * Math.PI);
-		// System.out.println(printInfo());
 	}
 
 	protected void turnRight() {
 		rotation = -(rotation + handling) % (2 * Math.PI);
-		// System.out.println(printInfo());
 	}
 
 	/**
 	 * Updates this car's speed and rotation according to the friction factor of
 	 * the underlying terrain.
-	 * 
-	 * @param frictionCoefficient
-	 *            the friction of the car's current terrain
+	 *
+	 * @param frictionCoefficient the friction of the car's current terrain
 	 */
 	public void updateSpeedAndRotation(double frictionCoefficient) {
 		if (game.getBotOn()) {
@@ -154,30 +129,29 @@ public class Car {
 			 */
 			upIsPressed = true;
 			double rotLeft = this.getRotation() - Math.PI / 2;
-			MagicLineList = new ArrayList<MagicLine>();
+			ArrayList<MagicLine> magicLineList = new ArrayList<>();
 			for (int i = 0; rotLeft + i * handling <= rotLeft + Math.PI; i++) {
 				MagicLine ML = new MagicLine(rotLeft + i * handling);
-				MagicLineList.add(ML);
+				magicLineList.add(ML);
 			}
 			int bestSteps = 0;
 			int bestMagicLine = 0;
-			for (int i = 0; i < MagicLineList.size(); i++) {
-				if (MagicLineList.get(i).calculateSteps(game, this) > bestSteps) {
-					bestSteps = MagicLineList.get(i).calculateSteps(game, this);
+			for (int i = 0; i < magicLineList.size(); i++) {
+				if (magicLineList.get(i).calculateSteps(game, this) > bestSteps) {
+					bestSteps = magicLineList.get(i).calculateSteps(game, this);
 					bestMagicLine = i;
 				}
 			}
-			if (bestMagicLine < MagicLineList.size() / 2 - 1) {
+			if (bestMagicLine < magicLineList.size() / 2 - 1) {
 				leftIsPressed = true;
 				rightIsPressed = false;
-			} else
-				if (bestMagicLine > MagicLineList.size() / 2 - 1) {
-					rightIsPressed = true;
-					leftIsPressed = false;
-				} else {
-					rightIsPressed = false;
-					leftIsPressed = false;
-				}
+			} else if (bestMagicLine > magicLineList.size() / 2 - 1) {
+				rightIsPressed = true;
+				leftIsPressed = false;
+			} else {
+				rightIsPressed = false;
+				leftIsPressed = false;
+			}
 		}
 
 		/*
@@ -186,12 +160,11 @@ public class Car {
 		 */
 		if (upIsPressed && !downIsPressed) {
 			speed += acceleration - (speed * frictionCoefficient);
-		} else
-			if (downIsPressed && !upIsPressed) {
-				speed += breaking - (speed * frictionCoefficient);
-			} else {
-				speed -= (speed * frictionCoefficient);
-			}
+		} else if (downIsPressed && !upIsPressed) {
+			speed += breaking - (speed * frictionCoefficient);
+		} else {
+			speed -= (speed * frictionCoefficient);
+		}
 		if (speed < acceleration / 10 && speed > breaking / 10) {
 			speed = 0;
 		}
@@ -201,13 +174,10 @@ public class Car {
 				// mod 2PI if you complete a full circle
 				rotation = (rotation - (handling)) % (2 * Math.PI);
 				// rotation = (rotation - (handling/20*speed)) % (2 * Math.PI);
-			} else
-				if (rightIsPressed && !leftIsPressed) {
-					// mod 2PI if you complete a full circle
-					rotation = (rotation + (handling)) % (2 * Math.PI);
-					// rotation = (rotation + (handling/20*speed)) % (2 *
-					// Math.PI);
-				}
+			} else if (rightIsPressed && !leftIsPressed) {
+				// mod 2PI if you complete a full circle
+				rotation = (rotation + (handling)) % (2 * Math.PI);
+			}
 		}
 
 	}
@@ -286,13 +256,10 @@ public class Car {
 	}
 
 	protected String printInfo() {
-		String s = "\t---Carproperties---" + "\nName:\t\t" + carName
-				+ "\nAcceleration:\t" + this.acceleration + "\nBreaking:\t"
-				+ breaking + "\nHandling:\t" + handling
-				+ "\n\n\t---Game Info---\n" + "Pos:\t\t" + this.getX() + "/"
-				+ this.getY() + "\n" + "Speed: \t\t" + speed + "\n"
+		return "\t---Carproperties---" + "\nName:\t\t" + carName + "\nAcceleration:\t" + this.acceleration
+				+ "\nBreaking:\t" + breaking + "\nHandling:\t" + handling + "\n\n\t---Game Info---\n"
+				+ "Pos:\t\t" + this.getX() + "/" + this.getY() + "\n" + "Speed: \t\t" + speed + "\n"
 				+ "Rotation: \t" + rotation + "\n";
-		return s;
 	}
 
 	public boolean getUpIsPressed() {

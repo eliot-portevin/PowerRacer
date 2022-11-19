@@ -443,28 +443,30 @@ public class ClientGUI {
 
 		helpButton = new JButton("Help");
 		helpButton.addActionListener(e -> JOptionPane.showMessageDialog(frame,
-				"Controls:\n" +
-						"W or Up arrow = accelerate\n" +
-						"S or Down arrow = reverse\n" +
-						"A and D or Left and Right arrows = steer\n" +
-						"SPACE or V = activate Powerup\n" +
-						"- and + or O and P = zoom out and in\n" +
-						"T = toggle player names\n" +
-						"M = toggle Music\n" +
-						"1-5 = change window position\n" +
-						"F = toggle Fullscreen\n" +
-						"C = screenshot",
+				"""
+						Controls:
+						W or Up arrow = accelerate
+						S or Down arrow = reverse
+						A and D or Left and Right arrows = steer
+						SPACE or V = activate Powerup
+						- and + or O and P = zoom out and in
+						T = toggle player names
+						M = toggle Music
+						1-5 = change window position
+						F = toggle Fullscreen
+						C = screenshot""",
 				"Help", JOptionPane.PLAIN_MESSAGE));
 
 		chatHelpButton = new JButton("Chat Help");
 		chatHelpButton.addActionListener(e -> JOptionPane.showMessageDialog(frame,
-				"Chat Commands:\n" +
-						"Whisper: \\w name message\n" +
-						"List players: \\l\n" +
-						"Change name: \\n name\n" +
-						"To broadcast use: \\a message\n" +
-						"List running games: \\g\n" +
-						"List game history: \\h",
+				"""
+						Chat Commands:
+						Whisper: \\w name message
+						List players: \\l
+						Change name: \\n name
+						To broadcast use: \\a message
+						List running games: \\g
+						List game history: \\h""",
 				"Chat Help", JOptionPane.PLAIN_MESSAGE));
 	}
 
@@ -603,8 +605,7 @@ public class ClientGUI {
 												.addComponent(creditsButton)))
 				.addGroup(
 						layout.createParallelGroup().addComponent(ipField)
-								.addComponent(sendButton)
-						/* .addComponent(feedback) */));
+								.addComponent(sendButton)));
 
 		// define button action listeners
 		sendButton.addActionListener(e -> sendChatRequest(ipField.getText()));
@@ -616,13 +617,19 @@ public class ClientGUI {
 		frame.getContentPane().add(panel);
 		frame.pack();
 		if (!lobby) {
-			chatBox.setText("Welcome to the Server!\n"
-					+ "To chat, enter text in the field below.\n\n"
-					+ "Please keep your messages swearword free!\n"
-					+ "Special commands: \n" + "Whisper: \\w name message\n"
-					+ "List players: \\l\n" + "Change name: \\n name\n"
-					+ "To broadcast use: \\a message\n"
-					+ "List running games: \\g\n" + "List game history: \\h\n");
+			chatBox.setText("""
+					Welcome to the Server!
+					To chat, enter text in the field below.
+
+					Please keep your messages swearword free!
+					Special commands:\s
+					Whisper: \\w name message
+					List players: \\l
+					Change name: \\n name
+					To broadcast use: \\a message
+					List running games: \\g
+					List game history: \\h
+					""");
 			addToChat("Logged in as: " + name);
 			client.commandQueue.add("WHOOR");
 		}
@@ -682,28 +689,28 @@ public class ClientGUI {
 
 		resolutionSelection.addActionListener(e -> {
 			switch ((String) Objects.requireNonNull(resolutionSelection.getSelectedItem())) {
-				case STANDARD_RESOLUTION_360P:
+				case STANDARD_RESOLUTION_360P -> {
 					resX = 640;
 					resY = 360;
-					break;
-				case HIGH_DEFINITION_RESOLUTION_720P:
+				}
+				case HIGH_DEFINITION_RESOLUTION_720P -> {
 					resX = 1280;
 					resY = 720;
-					break;
-				case FULL_HIGH_DEFINITION_RESOLUTION_1080P:
+				}
+				case FULL_HIGH_DEFINITION_RESOLUTION_1080P -> {
 					resX = 1920;
 					resY = 1080;
-					break;
-				case QUAD_HIGH_DEFINITION_RESOLUTION_1440P:
+				}
+				case QUAD_HIGH_DEFINITION_RESOLUTION_1440P -> {
 					resX = 2560;
 					resY = 1440;
-					break;
-				case QUAD_FULL_HIGH_DEFINITION_RESOLUTION_4K:
+				}
+				case QUAD_FULL_HIGH_DEFINITION_RESOLUTION_4K -> {
 					resX = 3840;
 					resY = 2160;
-					break;
-				default:
-					break;
+				}
+				default -> {
+				}
 			}
 		});
 

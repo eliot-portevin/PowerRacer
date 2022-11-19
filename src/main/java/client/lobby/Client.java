@@ -180,7 +180,6 @@ public class Client implements Runnable {
 				while (!termination && heartBeatTicker < 5) {
 					heartBeatReturned = false;
 					commandQueue.add("HBTCR");
-					// System.out.println("HeartBeat sent!");
 					Thread.sleep(2000);
 					if (!heartBeatReturned) {
 						System.out.println("HeartBeat missing!");
@@ -190,8 +189,7 @@ public class Client implements Runnable {
 					}
 				}
 				if (heartBeatTicker > 4) {
-					JOptionPane.showMessageDialog(clientGUI.frame,
-							"Server connection has timed out.");
+					JOptionPane.showMessageDialog(clientGUI.frame, "Server connection has timed out.");
 					clientGUI.frame.dispose();
 					ClientGUI.reset();
 					terminate();

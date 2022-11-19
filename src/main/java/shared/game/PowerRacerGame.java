@@ -2,6 +2,7 @@ package shared.game;
 
 import java.awt.Image;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -28,16 +29,16 @@ public class PowerRacerGame {
 	private boolean control, complete, botOn, pause;
 	private int invertInputs;
 	int numberOfPlayers;
-	ArrayList<String> players = new ArrayList<String>();
-	ArrayList<String> finishedPlayers = new ArrayList<String>();
+	ArrayList<String> players = new ArrayList<>();
+	ArrayList<String> finishedPlayers = new ArrayList<>();
 	int[] times;
-	private byte trackIdentifier;
+	private final byte trackIdentifier;
 	String[] playerNames;
 	private PowerupManager PowerupManager;
 
 	public static boolean[] tempID = new boolean[200];
 
-	private ConcurrentLinkedQueue<Collidable> collidables = new ConcurrentLinkedQueue<Collidable>();
+	private final ConcurrentLinkedQueue<Collidable> collidables = new ConcurrentLinkedQueue<>();
 
 	/**
 	 * Constructs a new game from the given parameters.
@@ -61,8 +62,7 @@ public class PowerRacerGame {
 			/*
 			 * Creates cars from car file (x-carpos,y-carpos,cartype)
 			 */
-			cars[i] = new Car(setStartingPositionX(i), setStartingPositionY(i),
-					carTypes[i], this); // change last argument to change
+			cars[i] = new Car(setStartingPositionX(i), setStartingPositionY(i), carTypes[i], this); // change last argument to change
 			// cartypes
 		}
 		for (int i = 0; i < track.numberOfItemBoxes(); i++) {
@@ -97,7 +97,7 @@ public class PowerRacerGame {
 	 * Collidable with this id, does nothing.
 	 *
 	 * @param id the id of the Collidable to be removed
-	 * @return whether a Collidable was removde or not
+	 * @return whether a Collidable was removed or not
 	 */
 	public boolean removeFromCollidables(int id) {
 		if (id - 500 < 200 && id - 500 >= 0) {
@@ -327,17 +327,11 @@ public class PowerRacerGame {
 				frictionCoefficient = track.getDefaultTileFriction();
 			}
 			if (invertInputs > 0 && carIndex == i) {
-				// boolean downIsPressed = cars[carIndex].getUpIsPressed();
-				// boolean upIsPressed = cars[carIndex].getDownIsPressed();
 				boolean rightIsPressed = cars[carIndex].getLeftIsPressed();
 				boolean leftIsPressed = cars[carIndex].getRightIsPressed();
-				// cars[carIndex].setUp(upIsPressed);
-				// cars[carIndex].setDown(downIsPressed);
 				cars[carIndex].setLeft(leftIsPressed);
 				cars[carIndex].setRight(rightIsPressed);
 				cars[i].updateSpeedAndRotation(frictionCoefficient);
-				// cars[carIndex].setUp(downIsPressed);
-				// cars[carIndex].setDown(upIsPressed);
 				cars[carIndex].setLeft(rightIsPressed);
 				cars[carIndex].setRight(leftIsPressed);
 				invertInputs--;
@@ -371,7 +365,6 @@ public class PowerRacerGame {
 						cars[i].setCheckpoint(0);
 						cars[i].increaseLap();
 						if (cars[i].getLap() == track.getMaxLap()) {
-							// System.out.println("Yay, you did it!");
 							commandQueue.add("GFINI");
 							control = false;
 							botOn = true;
@@ -386,20 +379,18 @@ public class PowerRacerGame {
 				}
 			}
 			cars[i].setPosition(
-					cars[i].getX() + cars[i].getSpeed()
-							* Math.cos(cars[i].getRotation()),
-					cars[i].getY() + cars[i].getSpeed()
-							* Math.sin(cars[i].getRotation()));
+					cars[i].getX() + cars[i].getSpeed() * Math.cos(cars[i].getRotation()),
+					cars[i].getY() + cars[i].getSpeed() * Math.sin(cars[i].getRotation()));
 
 			if (i == carIndex && !complete) {
 				/*
 				 * Send Input to server
 				 */
 				commandQueue.add("GINPI" + ":"
-						+ Boolean.toString(cars[i].getUpIsPressed()) + ":"
-						+ Boolean.toString(cars[i].getDownIsPressed()) + ":"
-						+ Boolean.toString(cars[i].getLeftIsPressed()) + ":"
-						+ Boolean.toString(cars[i].getRightIsPressed()) + ":"
+						+ cars[i].getUpIsPressed() + ":"
+						+ cars[i].getDownIsPressed() + ":"
+						+ cars[i].getLeftIsPressed() + ":"
+						+ cars[i].getRightIsPressed() + ":"
 						+ cars[i].getX() + ":" + cars[i].getY() + ":"
 						+ cars[i].getSpeed() + ":" + cars[i].getRotation());
 			}
@@ -420,9 +411,7 @@ public class PowerRacerGame {
 
 	public void setScoreboard(int[] times, String[] names) {
 		this.times = times;
-		for (String name : names) {
-			finishedPlayers.add(name);
-		}
+		Collections.addAll(finishedPlayers, names);
 	}
 
 	public String[] getScoreboard() {
@@ -477,8 +466,7 @@ public class PowerRacerGame {
 		try {
 			cars[carIndex].getPowerup().activate();
 			cars[carIndex].setPowerup(null);
-		} catch (NullPointerException e) {
-
+		} catch (NullPointerException ignored) {
 		}
 	}
 
@@ -523,24 +511,18 @@ public class PowerRacerGame {
 		}
 	}
 
-	public void sendNewCollidablePacket(int collidableIdentifier, double x,
-										double y, double rotation, int randomID) {
-		commandQueue.add("GCLCR:" + collidableIdentifier + ":" + x + ":" + y
-				+ ":" + rotation + ":" + randomID);
+	public void sendNewCollidablePacket(int collidableIdentifier, double x, double y, double rotation, int randomID) {
+		commandQueue.add("GCLCR:" + collidableIdentifier + ":" + x + ":" + y + ":" + rotation + ":" + randomID);
 	}
 
 	public boolean addCollidableFromPacket(int collidableIdentifier, double x,
 										   double y, double rotation, int id) {
 		Collidable collidable = null;
 		switch (collidableIdentifier) {
-			case 0:
-				collidable = new RocketCollidable(x, y, rotation, this, id);
-				break;
-			case 1:
-				collidable = new OilSlickCollidable(x, y, rotation, this, id);
-				break;
-			default:
-				break;
+			case 0 -> collidable = new RocketCollidable(x, y, rotation, this, id);
+			case 1 -> collidable = new OilSlickCollidable(x, y, rotation, this, id);
+			default -> {
+			}
 		}
 		if (collidable != null) {
 			addToCollidables(collidable);

@@ -16,6 +16,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serial;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,9 +41,7 @@ import shared.game.powerup.Powerup;
  */
 public class Camera extends Component {
 
-	/**
-	 *
-	 */
+	@Serial
 	private static final long serialVersionUID = 1L;
 	SoundManager sm = new SoundManager(true); // set true for sounds
 	private final int music;
@@ -111,8 +110,7 @@ public class Camera extends Component {
 		frame.setIgnoreRepaint(true);
 		frame.pack();
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setLocation(dim.width / 2 - frame.getSize().width / 2,
-				dim.height / 2 - frame.getSize().height / 2);
+		frame.setLocation(dim.width / 2 - frame.getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
 
 		frame.setVisible(true);
 
@@ -145,11 +143,10 @@ public class Camera extends Component {
 			try {
 				// retrieve image
 				BufferedImage bi = (BufferedImage) dbImage;
-				DateFormat dateFormat = new SimpleDateFormat(
-						"dd.MM.yyyy HH:mm:ss");
+				DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 				Date date = new Date();
-				File outputfile = new File(dateFormat.format(date) + ".png");
-				ImageIO.write(bi, "png", outputfile);
+				File outputFile = new File(dateFormat.format(date) + ".png");
+				ImageIO.write(bi, "png", outputFile);
 			} catch (IOException e) {
 				System.out.println("ERROR");
 			}
@@ -207,7 +204,6 @@ public class Camera extends Component {
 				}
 			}
 		}
-		// g.drawImage(trackImage, -x,-y, null);
 
 		for (Collidable c : game.getCollidables()) {
 			if (c.isEnabled()) {
@@ -648,13 +644,11 @@ class UpdateThread extends Thread {
 	boolean stop;
 	PowerRacerGame game;
 	int updateSleep;
-	// private Boolean updateInProgress;
 	JFrame frame;
 
 	public UpdateThread(PowerRacerGame game, int updateSleep, JFrame frame) {
 		this.game = game;
 		this.updateSleep = updateSleep;
-		// this.updateInProgress = updateInProgress;
 		this.frame = frame;
 		this.start();
 	}
