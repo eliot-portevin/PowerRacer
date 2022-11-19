@@ -3,6 +3,8 @@ package server.game;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import client.gui.RandomMapGenerator;
 import server.game.countdown.CountdownThread;
@@ -51,7 +53,7 @@ public class GameManager {
 			carTypes[i] = lobby.getLobbylist().get(i).getCarIndex();
 		}
 		PowerRacerGame game = new PowerRacerGame(lobby.getLobbylist().size(), raceTrack, carTypes, 4,
-				new ConcurrentLinkedQueue<String>());
+				new LinkedBlockingQueue<>());
 		getGamelist().add(game);
 		ArrayList<String> names = new ArrayList<String>();
 		for (int i = 0; i < lobby.getLobbylist().size(); i++) {

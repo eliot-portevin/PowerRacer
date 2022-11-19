@@ -2,6 +2,7 @@ package shared.game;
 
 import java.awt.Image;
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import server.game.powerup.PowerupManager;
@@ -15,16 +16,15 @@ import client.gui.Camera;
 /**
  * The Game object responsible for updating information and sending it to the
  * server.
- * 
- * @author Florian
  *
+ * @author Florian
  */
 public class PowerRacerGame {
 
 	Car[] cars;
 	public RaceTrack track;
 	int carIndex, countdown = -40;
-	ConcurrentLinkedQueue<String> commandQueue;
+	BlockingQueue<String> commandQueue;
 	private boolean control, complete, botOn, pause;
 	private int invertInputs;
 	int numberOfPlayers;
@@ -41,21 +41,14 @@ public class PowerRacerGame {
 
 	/**
 	 * Constructs a new game from the given parameters.
-	 * 
-	 * @param numberOfPlayers
-	 *            the number of players in this game
-	 * @param trackIdentifier
-	 *            the identifier required to load the correct track
-	 * @param carTypes
-	 *            the types of cars participating in this race
-	 * @param carIndex
-	 *            the car index of this players car
-	 * @param commandQueue
-	 *            the command queue needed to send packets to the server
+	 *
+	 * @param numberOfPlayers the number of players in this game
+	 * @param trackIdentifier the identifier required to load the correct track
+	 * @param carTypes        the types of cars participating in this race
+	 * @param carIndex        the car index of this players car
+	 * @param commandQueue    the command queue needed to send packets to the server
 	 */
-	public PowerRacerGame(int numberOfPlayers, byte trackIdentifier,
-			int[] carTypes, int carIndex,
-			ConcurrentLinkedQueue<String> commandQueue) {
+	public PowerRacerGame(int numberOfPlayers, byte trackIdentifier, int[] carTypes, int carIndex, BlockingQueue<String> commandQueue) {
 		this.numberOfPlayers = numberOfPlayers;
 		this.trackIdentifier = trackIdentifier;
 		this.carIndex = carIndex;
@@ -70,7 +63,7 @@ public class PowerRacerGame {
 			 */
 			cars[i] = new Car(setStartingPositionX(i), setStartingPositionY(i),
 					carTypes[i], this); // change last argument to change
-										// cartypes
+			// cartypes
 		}
 		for (int i = 0; i < track.numberOfItemBoxes(); i++) {
 			addToCollidables(new PowerupBox(
@@ -92,9 +85,8 @@ public class PowerRacerGame {
 
 	/**
 	 * Adds the given Collidable to the game.
-	 * 
-	 * @param collidable
-	 *            the Collidable being added.
+	 *
+	 * @param collidable the Collidable being added.
 	 */
 	public void addToCollidables(Collidable collidable) {
 		collidables.add(collidable);
@@ -103,9 +95,8 @@ public class PowerRacerGame {
 	/**
 	 * Removes the Collidable with the id from the list. If there is no
 	 * Collidable with this id, does nothing.
-	 * 
-	 * @param id
-	 *            the id of the Collidable to be removed
+	 *
+	 * @param id the id of the Collidable to be removed
 	 * @return whether a Collidable was removde or not
 	 */
 	public boolean removeFromCollidables(int id) {
@@ -123,9 +114,8 @@ public class PowerRacerGame {
 
 	/**
 	 * To find out if a Collidable exists with a certain id.
-	 * 
-	 * @param id
-	 *            the checked Collidables id
+	 *
+	 * @param id the checked Collidables id
 	 * @return if the Collidable exists
 	 */
 	public boolean collidableExists(int id) {
@@ -139,9 +129,8 @@ public class PowerRacerGame {
 
 	/**
 	 * Locks the temp id from being generated again.
-	 * 
-	 * @param tempID
-	 *            the id to be locked
+	 *
+	 * @param tempID the id to be locked
 	 * @return if the id was unlocked before
 	 */
 	public boolean lockTempID(int tempID) {
@@ -159,9 +148,8 @@ public class PowerRacerGame {
 
 	/**
 	 * Unlocks the tempID.
-	 * 
-	 * @param tempID
-	 *            the id to be unlocked
+	 *
+	 * @param tempID the id to be unlocked
 	 */
 	public void freeTempID(int tempID) {
 		tempID -= 500;
@@ -173,11 +161,9 @@ public class PowerRacerGame {
 	/**
 	 * Replaces a Collidable's ID. If Collidable with oldID does not exist, does
 	 * nothing.
-	 * 
-	 * @param oldID
-	 *            the id before
-	 * @param newID
-	 *            the id after
+	 *
+	 * @param oldID the id before
+	 * @param newID the id after
 	 * @return if a Collidable was found with oldID
 	 */
 	public boolean replaceCollidableID(int oldID, int newID) {
@@ -215,8 +201,8 @@ public class PowerRacerGame {
 
 	public Image getCarImage(int carNum) {
 		int num = (carNum % 4) + (cars[carNum].getImageNum()) * 4; // 4 is the number
-															 // of different
-															 // colors available
+		// of different
+		// colors available
 		return track.getCarImage(num);
 	}
 
@@ -379,23 +365,22 @@ public class PowerRacerGame {
 					if (track.getCheckpointNumber(x, y) == cars[i]
 							.getCheckpoint() + 1) {
 						cars[i].increaseCheckpoint();
-					} else
-						if (track.getCheckpointNumber(x, y) == 99
-								&& cars[i].getCheckpoint() == track
-										.getMaxCheckpoint()) {
-							cars[i].setCheckpoint(0);
-							cars[i].increaseLap();
-							if (cars[i].getLap() == track.getMaxLap()) {
-								// System.out.println("Yay, you did it!");
-								commandQueue.add("GFINI");
-								control = false;
-								botOn = true;
-								cars[i].setUp(false);
-								cars[i].setDown(false);
-								cars[i].setRight(false);
-								cars[i].setLeft(false);
-							}
+					} else if (track.getCheckpointNumber(x, y) == 99
+							&& cars[i].getCheckpoint() == track
+							.getMaxCheckpoint()) {
+						cars[i].setCheckpoint(0);
+						cars[i].increaseLap();
+						if (cars[i].getLap() == track.getMaxLap()) {
+							// System.out.println("Yay, you did it!");
+							commandQueue.add("GFINI");
+							control = false;
+							botOn = true;
+							cars[i].setUp(false);
+							cars[i].setDown(false);
+							cars[i].setRight(false);
+							cars[i].setLeft(false);
 						}
+					}
 				} catch (IndexOutOfBoundsException e) {
 					// Do nothing
 				}
@@ -423,11 +408,9 @@ public class PowerRacerGame {
 
 	/**
 	 * Checks whether a car collides with a certain collidable.
-	 * 
-	 * @param carIndex
-	 *            the car's index
-	 * @param c
-	 *            the collidable
+	 *
+	 * @param carIndex the car's index
+	 * @param c        the collidable
 	 * @return if a collision occurs
 	 */
 	private boolean collide(int carIndex, Collidable c) {
@@ -541,13 +524,13 @@ public class PowerRacerGame {
 	}
 
 	public void sendNewCollidablePacket(int collidableIdentifier, double x,
-			double y, double rotation, int randomID) {
+										double y, double rotation, int randomID) {
 		commandQueue.add("GCLCR:" + collidableIdentifier + ":" + x + ":" + y
 				+ ":" + rotation + ":" + randomID);
 	}
 
 	public boolean addCollidableFromPacket(int collidableIdentifier, double x,
-			double y, double rotation, int id) {
+										   double y, double rotation, int id) {
 		Collidable collidable = null;
 		switch (collidableIdentifier) {
 			case 0:

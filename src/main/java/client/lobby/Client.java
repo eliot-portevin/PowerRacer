@@ -1,38 +1,37 @@
 package client.lobby;
 
+import client.gui.ClientGUI;
+import shared.game.PowerRacerGame;
+
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import javax.swing.JOptionPane;
-
-import shared.game.PowerRacerGame;
-import client.lobby.ClientParser;
-import client.gui.ClientGUI;
+import java.net.SocketAddress;
+import java.util.Arrays;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Manages Client to server connection on client side.
  * <p>
  * Keeps track of sending and receiving messages and links ClientParser and
  * ClientGUI.
- * 
- * @author Florian
  *
+ * @author Florian
  */
 public class Client implements Runnable {
 
 	public String name;
 	private BufferedReader in;
 	private PrintWriter out;
-	public int port;
-	public String host = "localhost";
 	public Socket socket;
 	public Thread senderThread;
 	public Thread receiverThread;
-	public ConcurrentLinkedQueue<String> commandQueue = new ConcurrentLinkedQueue<String>();
+	public BlockingQueue<String> commandQueue = new LinkedBlockingQueue<>();
 	ClientParser parser;
 	ClientGUI clientGUI;
 	public boolean connectionApproved, termination, heartBeatReturned;
@@ -43,20 +42,18 @@ public class Client implements Runnable {
 	 * Constructor using host name and ClientGUI object.
 	 * <p>
 	 * Starts necessary threads such as senderThread and receiverThread.
-	 * 
-	 * @param host
-	 *            host name
-	 * @param clientGUI
-	 *            reference to the creating ClientGUI
-	 * @param port
-	 *            the port number
+	 *
+	 * @param host      host name
+	 * @param clientGUI reference to the creating ClientGUI
+	 * @param port      the port number
 	 */
 	public Client(String host, ClientGUI clientGUI, int port) {
-		this.port = port;
 		this.clientGUI = clientGUI;
 		try {
-			socket = new Socket(host, port);
+			socket = new Socket();
 			socket.setTcpNoDelay(true);
+			SocketAddress address = new InetSocketAddress(host, port);
+			socket.connect(address, 3000);
 			try {
 				in = new BufferedReader(new InputStreamReader(
 						socket.getInputStream()));
@@ -67,10 +64,10 @@ public class Client implements Runnable {
 				senderThread.start();
 				receiverThread.start();
 			} catch (Exception e) {
-				System.err.println("Client Error1: " + e.getMessage());
+				System.err.println("Client Error: " + e.getMessage());
 				System.err.println("Localized: " + e.getLocalizedMessage());
-				System.err.println("Stack Trace: " + e.getStackTrace());
-				System.err.println("To String: " + e.toString());
+				System.err.println("Stack Trace: " + Arrays.toString(e.getStackTrace()));
+				System.err.println("To String: " + e);
 			}
 		} catch (Exception e) {
 			clientGUI.setFeedback(e.getMessage());
@@ -93,7 +90,6 @@ public class Client implements Runnable {
 			System.out.println("ERROR in Client!");
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
@@ -103,12 +99,11 @@ public class Client implements Runnable {
 	public void run() {
 		if (Thread.currentThread() == this.receiverThread) {
 			Receiver();
-		} else
-			if (Thread.currentThread() == this.senderThread) {
-				Sender();
-			} else {
-				checkTimeOut();
-			}
+		} else if (Thread.currentThread() == this.senderThread) {
+			Sender();
+		} else {
+			checkTimeOut();
+		}
 	}
 
 	/**
@@ -117,8 +112,7 @@ public class Client implements Runnable {
 	private void checkTimeOut() {
 		try {
 			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-
+		} catch (InterruptedException ignored) {
 		}
 		if (!connectionApproved) {
 			clientGUI.setFeedback("Connection time-out!");
@@ -134,25 +128,14 @@ public class Client implements Runnable {
 	 */
 	private void Sender() {
 		while (!termination) {
-			while (commandQueue.isEmpty() == false) {
-				try {
-					out.println(commandQueue.remove());
-				} catch (Exception e) {
-					if (termination) {
-						return;
-					} else {
-						System.err.println("Client Error2: " + e.getMessage());
-						System.err.println("Localized: "
-								+ e.getLocalizedMessage());
-						System.err.println("Stack Trace: " + e.getStackTrace());
-						System.err.println("To String: " + e.toString());
-					}
-				}
-			}
 			try {
-				Thread.sleep(20);
-			} catch (InterruptedException e) {
-				// System.out.println("Sender thread shutting down...");
+				out.println(commandQueue.take());
+			} catch (Exception e) {
+				if (termination) {
+					return;
+				} else {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -172,11 +155,7 @@ public class Client implements Runnable {
 				if (termination) {
 					return;
 				} else {
-					// System.err.println("Client Error3: " + e.getMessage());
-					// System.err.println("Localized: " +
-					// e.getLocalizedMessage());
-					// System.err.println("Stack Trace: " + e.getStackTrace());
-					// System.err.println("To String: " + e.toString());
+					e.printStackTrace();
 				}
 			}
 		}
@@ -185,9 +164,8 @@ public class Client implements Runnable {
 	/**
 	 * Periodically tests client server connection. Returns the user to server
 	 * select screen in case of a 10 second timeout.
-	 * 
-	 * @author Florian
 	 *
+	 * @author Florian
 	 */
 	private class HeartBeatThread extends Thread {
 
@@ -226,20 +204,15 @@ public class Client implements Runnable {
 
 	/**
 	 * Starts a new game with the given parameters.
-	 * 
-	 * @param numberOfPlayers
-	 *            the number of human players participating in this game
-	 * @param carIndex
-	 *            this players car index
-	 * @param carTypes
-	 *            the selected car indexes needed to display the correct images
-	 * @param raceTrackNumber
-	 *            the number of the selected track
-	 * @param playerNames
-	 *            the names of the participating players
+	 *
+	 * @param numberOfPlayers the number of human players participating in this game
+	 * @param carIndex        this players car index
+	 * @param carTypes        the selected car indexes needed to display the correct images
+	 * @param raceTrackNumber the number of the selected track
+	 * @param playerNames     the names of the participating players
 	 */
 	public void startGame(int numberOfPlayers, int carIndex, int[] carTypes,
-			byte raceTrackNumber, String[] playerNames) {
+						  byte raceTrackNumber, String[] playerNames) {
 		if (raceTrackNumber == 4) {
 			try {
 				Thread.sleep(1000);
@@ -248,38 +221,28 @@ public class Client implements Runnable {
 			}
 		}
 		System.out.println("Setting game!");
-		game = new PowerRacerGame(numberOfPlayers, raceTrackNumber, carTypes,
-				carIndex, commandQueue);
+		game = new PowerRacerGame(numberOfPlayers, raceTrackNumber, carTypes, carIndex, commandQueue);
 		game.setPlayerNames(playerNames);
 		clientGUI.startCamera(game);
 	}
 
 	/**
 	 * Sets the Car's input and position information.
-	 * 
-	 * @param carIndex
-	 *            the index of the Car to which the inputs belong
-	 * @param upIsPressed
-	 *            the Car's up input
-	 * @param downIsPressed
-	 *            the Car's down input
-	 * @param leftIsPressed
-	 *            the Car's left input
-	 * @param rightIsPressed
-	 *            the Car's right input
-	 * @param x
-	 *            the Car horizontal position
-	 * @param y
-	 *            the Car vertical position
-	 * @param speed
-	 *            the Car current speed
-	 * @param rotation
-	 *            the Car current rotation
+	 *
+	 * @param carIndex       the index of the Car to which the inputs belong
+	 * @param upIsPressed    the Car's up input
+	 * @param downIsPressed  the Car's down input
+	 * @param leftIsPressed  the Car's left input
+	 * @param rightIsPressed the Car's right input
+	 * @param x              the Car horizontal position
+	 * @param y              the Car vertical position
+	 * @param speed          the Car current speed
+	 * @param rotation       the Car current rotation
 	 */
 	public void setCarInfo(int carIndex, boolean upIsPressed,
-			boolean downIsPressed, boolean leftIsPressed,
-			boolean rightIsPressed, double x, double y, double speed,
-			double rotation) {
+						   boolean downIsPressed, boolean leftIsPressed,
+						   boolean rightIsPressed, double x, double y, double speed,
+						   double rotation) {
 		game.setCarInputUp(carIndex, upIsPressed);
 		game.setCarInputDown(carIndex, downIsPressed);
 		game.setCarInputLeft(carIndex, leftIsPressed);
@@ -291,9 +254,8 @@ public class Client implements Runnable {
 
 	/**
 	 * Sets the countdown to the given value.
-	 * 
-	 * @param countdown
-	 *            the new value for countdown
+	 *
+	 * @param countdown the new value for countdown
 	 */
 	public void setCountdown(int countdown) {
 		game.setCountdown(countdown);
@@ -301,9 +263,8 @@ public class Client implements Runnable {
 
 	/**
 	 * Sets the games control to allow players to manipulate inputs or not.
-	 * 
-	 * @param control
-	 *            the new value for control
+	 *
+	 * @param control the new value for control
 	 */
 	public void setControl(boolean control) {
 		game.setControl(control);
@@ -320,10 +281,8 @@ public class Client implements Runnable {
 	 * Sets the Scoreboard to show the names of the victors and their finish
 	 * times.
 	 *
-	 * @param times
-	 *            the players' finish times
-	 * @param names
-	 *            the name of the players
+	 * @param times the players' finish times
+	 * @param names the name of the players
 	 */
 	public void setScoreboard(int[] times, String[] names) {
 		game.setScoreboard(times, names);
@@ -332,7 +291,7 @@ public class Client implements Runnable {
 	/**
 	 * Checks whether the game pointer is null or not. Used to determine whether
 	 * a null pointer may be caused.
-	 * 
+	 *
 	 * @return whether the game isn't null
 	 */
 	public static boolean gameNotNull() {
@@ -341,7 +300,7 @@ public class Client implements Runnable {
 
 	/**
 	 * Returns the static pointer on the game object.
-	 * 
+	 *
 	 * @return the static pointer on the game object
 	 */
 	public static PowerRacerGame getGame() {

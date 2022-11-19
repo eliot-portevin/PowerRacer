@@ -12,14 +12,12 @@ import shared.protocol.Protocol;
 
 /**
  * Parser to translate incoming packages and react accordingly.
- * 
- * @author Florian
- * 
  *
+ * @author Florian
  */
 class ClientParser {
 
-	private Client client;
+	private final Client client;
 
 	public ClientParser(Client client) {
 		this.client = client;
@@ -28,9 +26,8 @@ class ClientParser {
 	/**
 	 * Parses the argument message by checking the enum for matches and then
 	 * reacting accordingly.
-	 * 
-	 * @param inComPack
-	 *            package for parsing
+	 *
+	 * @param inComPack package for parsing
 	 */
 	public void parse(String inComPack) {
 		String command = inComPack.substring(0, 5);
@@ -39,13 +36,13 @@ class ClientParser {
 			switch (Protocol.valueOf(command)) {
 				case LGINA:
 					if (checkPacket(parts, 2,
-							new String[] { "String", "String" })) {
+							new String[]{"String", "String"})) {
 						moveToServerAndApproveConnection(parts);
 					}
 					break;
 				case LGIND:
 					if (checkPacket(parts, 2,
-							new String[] { "String", "String" })) {
+							new String[]{"String", "String"})) {
 						returnFeedbackToPlayerAndTerminateClient(parts);
 					}
 					break;
@@ -54,13 +51,13 @@ class ClientParser {
 					break;
 				case NAMCA:
 					if (checkPacket(parts, 2,
-							new String[] { "String", "String" })) {
+							new String[]{"String", "String"})) {
 						returnFeedbackToPlayerAndChangeClientName(parts);
 					}
 					break;
 				case NAMCD:
 					if (checkPacket(parts, 2,
-							new String[] { "String", "String" })) {
+							new String[]{"String", "String"})) {
 						returnInvalidNameChangeFeedbackToPlayer(parts);
 					}
 					break;
@@ -68,26 +65,26 @@ class ClientParser {
 					notifyClientOfReturnedHeartBeat();
 					break;
 				case CALLM:
-					if (checkPacket(parts, 3, new String[] { "String",
-							"String", "String" })) {
+					if (checkPacket(parts, 3, new String[]{"String",
+							"String", "String"})) {
 						addGlobalChatMessageToChat(parts);
 					}
 					break;
 				case CLOBM:
-					if (checkPacket(parts, 3, new String[] { "String",
-							"String", "String" })) {
+					if (checkPacket(parts, 3, new String[]{"String",
+							"String", "String"})) {
 						addLobbyChatMessageToChat(parts);
 					}
 					break;
 				case CWHIM:
-					if (checkPacket(parts, 4, new String[] { "String",
-							"String", "String", "String" })) {
+					if (checkPacket(parts, 4, new String[]{"String",
+							"String", "String", "String"})) {
 						addWhisperChatMessageToChat(parts);
 					}
 					break;
 				case CWHID:
-					if (checkPacket(parts, 4, new String[] { "String",
-							"String", "String", "String" })) {
+					if (checkPacket(parts, 4, new String[]{"String",
+							"String", "String", "String"})) {
 						addWhisperDeniedAlertToChat(parts);
 					}
 					break;
@@ -96,61 +93,56 @@ class ClientParser {
 					break;
 				case LGINI:
 					if (checkPacket(parts, 2,
-							new String[] { "String", "String" })) {
+							new String[]{"String", "String"})) {
 						addLoginInformationToChat(parts);
 					}
 					break;
 				case LGOUI:
 					if (checkPacket(parts, 2,
-							new String[] { "String", "String" })) {
+							new String[]{"String", "String"})) {
 						addLogoutInformationToChat(parts);
 					}
 					break;
 				case NAMCI:
-					if (checkPacket(parts, 3, new String[] { "String",
-							"String", "String" })) {
+					if (checkPacket(parts, 3, new String[]{"String",
+							"String", "String"})) {
 						addNameChangeInformationToChat(parts);
 					}
 					break;
 				case LOBCI:
-					if (checkPacket(parts, 4, new String[] { "String",
-							"String", "String", "byte" })) {
+					if (checkPacket(parts, 4, new String[]{"String",
+							"String", "String", "byte"})) {
 						addCreatedLobbyToLobbyList(parts);
 					}
 					break;
 				case LOBJI:
-					if (checkPacket(parts, 3, new String[] { "String",
-							"String", "String" })) {
+					if (checkPacket(parts, 3, new String[]{"String",
+							"String", "String"})) {
 						addLobbyJoinInformationToChat(parts);
 					}
 					break;
 				case LOBLI:
-					if (checkPacket(parts, 3, new String[] { "String",
-							"String", "String" })) {
+					if (checkPacket(parts, 3, new String[]{"String",
+							"String", "String"})) {
 						addLobbyLeaveInformationToChat(parts);
 					}
 					break;
 				case LOBCA:
-					if (checkPacket(parts, 3, new String[] { "String",
-							"String", "byte" })) {
+				case LOBJA:
+					if (checkPacket(parts, 3, new String[]{"String",
+							"String", "byte"})) {
 						moveToSpecifiedLobby(parts);
 					}
 					break;
 				case LOBCD:
-					if (checkPacket(parts, 3, new String[] { "String",
-							"String", "String" })) {
+					if (checkPacket(parts, 3, new String[]{"String",
+							"String", "String"})) {
 						returnLobbyCreateDeniedFeedbackToPlayer(parts);
-					}
-					break;
-				case LOBJA:
-					if (checkPacket(parts, 3, new String[] { "String",
-							"String", "byte" })) {
-						moveToSpecifiedLobby(parts);
 					}
 					break;
 				case LOBJD:
 					if (checkPacket(parts, 2,
-							new String[] { "String", "String" })) {
+							new String[]{"String", "String"})) {
 						returnLobbyJoinDeniedFeedbackToPlayer(parts);
 					}
 					break;
@@ -163,7 +155,7 @@ class ClientParser {
 					break;
 				case LOBOI:
 					if (multicheckPacket(parts,
-							new String[] { "String", "byte" })) {
+							new String[]{"String", "byte"})) {
 						setLobbyListToListOfOpenLobbies(parts);
 					}
 					break;
@@ -200,12 +192,11 @@ class ClientParser {
 					}
 					break;
 				case GINPI:
-					if (checkPacket(parts, 10, new String[] { "String", "int",
+					if (checkPacket(parts, 10, new String[]{"String", "int",
 							"boolean", "boolean", "boolean", "boolean",
-							"double", "double", "double", "double" })) {
-
+							"double", "double", "double", "double"})) {
+						setGameInformation(parts);
 					}
-					setGameInformation(parts);
 					break;
 				case GCODI:
 					setGameCountdown(parts);
@@ -229,36 +220,36 @@ class ClientParser {
 					addNoCurrentGamesRunningFeedbackToChat();
 					break;
 				case GCLDI:
-					if (checkPacket(parts, 2, new String[] { "String", "int" })) {
+					if (checkPacket(parts, 2, new String[]{"String", "int"})) {
 						disableCollidableWithId(parts);
 					}
 					break;
 				case GCLCA:
-					if (checkPacket(parts, 3, new String[] { "String", "int",
-							"int" })) {
+					if (checkPacket(parts, 3, new String[]{"String", "int",
+							"int"})) {
 						replaceCollidableId(parts);
 					}
 					break;
 				case GCLCR:
-					if (checkPacket(parts, 6, new String[] { "String", "int",
-							"double", "double", "double", "int" })) {
+					if (checkPacket(parts, 6, new String[]{"String", "int",
+							"double", "double", "double", "int"})) {
 						addCollidable(parts);
 					}
 					break;
 				case GCLRR:
-					if (checkPacket(parts, 2, new String[] { "String", "int" })) {
+					if (checkPacket(parts, 2, new String[]{"String", "int"})) {
 						removeCollidable(parts);
 					}
 					break;
 				case GPAUI:
-					if (checkPacket(parts, 2, new String[] { "String",
-							"boolean" })) {
+					if (checkPacket(parts, 2, new String[]{"String",
+							"boolean"})) {
 						setPause(parts);
 					}
 					break;
 				case GNRMG:
 					if (checkPacket(parts, 2,
-							new String[] { "String", "String" })) {
+							new String[]{"String", "String"})) {
 						RaceTrack.randomString = parts[1];
 					}
 					break;
@@ -276,7 +267,7 @@ class ClientParser {
 					ClientGUI.kickReset(message);
 					break;
 				case GCEFI:
-					if (checkPacket(parts, 2, new String[] { "String", "int" })) {
+					if (checkPacket(parts, 2, new String[]{"String", "int"})) {
 						addEffect(Integer.parseInt(parts[1]));
 					}
 					break;
@@ -381,41 +372,40 @@ class ClientParser {
 					result.append(delimiter + player + ": " + score);
 					delimiter = "\n";
 				}
-			} else
-				if (historyContent.length < 10) {
-					client.clientGUI.addToChat("Game History Corrupted!");
-					client.clientGUI
-							.addToChat("-----------------------------------------------");
-					continue;
-				} else {
-					String date = historyContent[0];
-					String trackName = historyContent[1];
-					StringBuilder players = new StringBuilder();
-					String prefix = "";
-					for (int j = 2; j < historyContent.length - 1; j++) {
-						if (isLong(historyContent[j + 1])) {
-							int seconds = (int) TimeUnit.MILLISECONDS
-									.toSeconds(Long
-											.parseLong(historyContent[j + 1]));
-							int milliseconds = (int) Long
-									.parseLong(historyContent[j + 1]) % 1000;
-							String score = seconds + "." + milliseconds + "s";
-							players.append(prefix + historyContent[j] + ": "
-									+ score);
-							prefix = "\n";
-							j++;
-						} else {
-							players.append(prefix + historyContent[j] + ",");
-							prefix = "";
-						}
+			} else if (historyContent.length < 10) {
+				client.clientGUI.addToChat("Game History Corrupted!");
+				client.clientGUI
+						.addToChat("-----------------------------------------------");
+				continue;
+			} else {
+				String date = historyContent[0];
+				String trackName = historyContent[1];
+				StringBuilder players = new StringBuilder();
+				String prefix = "";
+				for (int j = 2; j < historyContent.length - 1; j++) {
+					if (isLong(historyContent[j + 1])) {
+						int seconds = (int) TimeUnit.MILLISECONDS
+								.toSeconds(Long
+										.parseLong(historyContent[j + 1]));
+						int milliseconds = (int) Long
+								.parseLong(historyContent[j + 1]) % 1000;
+						String score = seconds + "." + milliseconds + "s";
+						players.append(prefix + historyContent[j] + ": "
+								+ score);
+						prefix = "\n";
+						j++;
+					} else {
+						players.append(prefix + historyContent[j] + ",");
+						prefix = "";
 					}
-					result.append("Game from ");
-					result.append(date.replace(";", ":"));
-					result.append(" on ");
-					result.append(trackName);
-					result.append("\n");
-					result.append(players);
 				}
+				result.append("Game from ");
+				result.append(date.replace(";", ":"));
+				result.append(" on ");
+				result.append(trackName);
+				result.append("\n");
+				result.append(players);
+			}
 
 			client.clientGUI.addToChat(result.toString());
 		}
@@ -618,7 +608,7 @@ class ClientParser {
 
 	/**
 	 * Method to catch and disregard bogus requests from clients.
-	 * 
+	 *
 	 * @return true if enum contains the command
 	 */
 	private boolean enumContains(String command) {
@@ -643,8 +633,8 @@ class ClientParser {
 		if (parts.length % types.length == 1) {
 			for (int i = 1; i <= parts.length - types.length; i += types.length) {
 				for (int j = 0; j < types.length; j++) {
-					if (!checkPacket(new String[] { parts[i + j] }, 1,
-							new String[] { types[j] })) {
+					if (!checkPacket(new String[]{parts[i + j]}, 1,
+							new String[]{types[j]})) {
 						return false;
 					}
 				}

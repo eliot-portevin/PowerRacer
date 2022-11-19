@@ -17,6 +17,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -64,32 +66,21 @@ public class ClientGUI {
 
 		if (args.length == 2) {
 			switch (args[0]) {
-				case "server":
+				case "server" -> {
 					createServer(Integer.parseInt(args[1]));
 					ServerGUI.runServerConsole();
-					break;
-				case "client":
+				}
+				case "client" -> {
 					clientGUI = new ClientGUI();
 					clientGUI.port = Integer.parseInt(args[1].split(":")[1]);
 					clientGUI.connect(args[1].split(":")[0]);
-					break;
-				default:
-					System.out.println("ERROR: Faulty arguments!");
-					break;
+				}
+				default -> System.out.println("ERROR: Faulty arguments!");
 			}
 		} else {
 			clientGUI = new ClientGUI();
 			clientGUI.refresh();
 		}
-	}
-
-	private void create() {
-		discServ = new DiscoveryServer();
-		CreateServer.create(port);
-		serverOn = true;
-		serverButton.setEnabled(false);
-		serverIp.setVisible(true);
-		refresh();
 	}
 
 	private static void createServer(int port) {
@@ -152,7 +143,9 @@ public class ClientGUI {
 	 * @param text feedback text
 	 */
 	public void setFeedback(String text) {
-		feedback.setText(text);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+		LocalDateTime time = LocalDateTime.now();
+		feedback.setText("[" + formatter.format(time) + "] " + text);
 	}
 
 	/**
@@ -327,9 +320,9 @@ public class ClientGUI {
 		connectIpButton = new JButton("Direct Connect");
 		serverIp = new JLabel();
 		try {
-			serverIp.setText("IP: "
-					+ InetAddress.getLocalHost().getHostAddress());
+			serverIp.setText("IP: " + InetAddress.getLocalHost().getHostAddress());
 		} catch (UnknownHostException ignored) {
+			serverIp.setText("IP: Unknown");
 		}
 
 		// create panels
@@ -363,11 +356,9 @@ public class ClientGUI {
 		list.setLayoutOrientation(JList.VERTICAL);
 		list.addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {
-
 				if (list.getSelectedIndex() == -1) {
 					// No selection
 					joinButton.setEnabled(false);
-
 				} else {
 					// Selection
 					joinButton.setEnabled(true);
@@ -441,7 +432,7 @@ public class ClientGUI {
 				.addComponent(feedback)
 				.addGroup(
 						layout.createParallelGroup(
-								GroupLayout.Alignment.BASELINE)
+										GroupLayout.Alignment.BASELINE)
 								.addComponent(enterIp).addComponent(ipField)
 								.addComponent(connectIpButton)));
 

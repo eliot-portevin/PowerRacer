@@ -95,16 +95,16 @@ public class ServerGUI {
 
 	public static void runServerConsole() {
 		System.out.println("Headless server ready! Type \"help\" for a list of commands.");
-		String helpMessage = "Available commands:\n" +
-				"  help - Print this help dialog.\n" +
-				"  k:ID:REASON - Kick a player with id ID displaying the text REASON.\n" +
-				"  k:NAME:REASON - Kick a player with name NAME displaying the text REASON. If there is a player with " +
-				"an ID identical to the specified NAME, the ID takes precedence.\n" +
-				"  b:TEXT - Send server broadcast with text TEXT.\n" +
-				"  players - List currently connected players.\n" +
-				"  lobbies - List currently open lobbies.\n" +
-				"  exit - Exit server.\n" +
-				"  quit - Quit server.";
+		String helpMessage = """
+				Available commands:
+				  help - Print this help dialog.
+				  k:ID:REASON - Kick a player with id ID displaying the text REASON.
+				  k:NAME:REASON - Kick a player with name NAME displaying the text REASON. If there is a player with an ID identical to the specified NAME, the ID takes precedence.
+				  b:TEXT - Send server broadcast with text TEXT.
+				  players - List currently connected players.
+				  lobbies - List currently open lobbies.
+				  exit - Exit server.
+				  quit - Quit server.""";
 		Scanner scan = new Scanner(System.in);
 		serverLoop:
 		while (true) {

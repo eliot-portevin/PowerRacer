@@ -3,12 +3,13 @@ package client.gui;
 import shared.game.PowerRacerGame;
 import shared.game.RaceTrack;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class CameraTest {
 
 	public static void main(String[] args) {
-		ConcurrentLinkedQueue<String> dummyCommandQueue = new ConcurrentLinkedQueue<>();
+		BlockingQueue<String> dummyCommandQueue = new LinkedBlockingQueue<>();
 		PowerRacerGame game = new PowerRacerGame(4, RaceTrack.GET_RANDOM, new int[]{0, 1, 3, 4}, 0, dummyCommandQueue);
 		game.setPlayerNames(new String[]{"Marco", "Beni", "Sim", "Florian"});
 		new Camera(game, 1280, 720, null);
