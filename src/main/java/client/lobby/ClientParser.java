@@ -24,8 +24,7 @@ class ClientParser {
 	}
 
 	/**
-	 * Parses the argument message by checking the enum for matches and then
-	 * reacting accordingly.
+	 * Parses the argument message by checking the enum for matches and then reacting accordingly.
 	 *
 	 * @param inComPack package for parsing
 	 */
@@ -262,7 +261,7 @@ class ClientParser {
 					}
 					try {
 						Thread.sleep(400);
-					} catch (InterruptedException e) {
+					} catch (InterruptedException ignored) {
 					}
 					ClientGUI.kickReset(message);
 					break;
@@ -283,16 +282,12 @@ class ClientParser {
 	private void addEffect(int effectIndex) {
 		if (client.clientGUI.cameraExists()) {
 			switch (effectIndex) {
-				case 0:
-					client.clientGUI.addEffect(new Lightning(Client.getGame(),
-							120));
-					break;
-				case 1:
-					client.clientGUI.addEffect(new Inversion(Client.getGame(),
-							50));
-					break;
-				default:
-					break;
+				case 0 -> client.clientGUI.addEffect(new Lightning(Client.getGame(),
+						120));
+				case 1 -> client.clientGUI.addEffect(new Inversion(Client.getGame(),
+						50));
+				default -> {
+				}
 			}
 		}
 	}
@@ -335,7 +330,7 @@ class ClientParser {
 		StringBuilder result = new StringBuilder(128);
 		result.append("There is currently a game running with the players:");
 		for (int i = 1; i < parts.length; i++) {
-			result.append("\n" + parts[i]);
+			result.append("\n").append(parts[i]);
 		}
 		client.clientGUI.addToChat(result.toString());
 	}
@@ -369,42 +364,14 @@ class ClientParser {
 							.parseLong(historyContent[j + 1]));
 					int milliseconds = (int) Long.parseLong(historyContent[3]) % 1000;
 					String score = seconds + "." + milliseconds + "s";
-					result.append(delimiter + player + ": " + score);
+					result.append(delimiter).append(player).append(": ").append(score);
 					delimiter = "\n";
 				}
-			} else if (historyContent.length < 10) {
+			} else {
 				client.clientGUI.addToChat("Game History Corrupted!");
 				client.clientGUI
 						.addToChat("-----------------------------------------------");
 				continue;
-			} else {
-				String date = historyContent[0];
-				String trackName = historyContent[1];
-				StringBuilder players = new StringBuilder();
-				String prefix = "";
-				for (int j = 2; j < historyContent.length - 1; j++) {
-					if (isLong(historyContent[j + 1])) {
-						int seconds = (int) TimeUnit.MILLISECONDS
-								.toSeconds(Long
-										.parseLong(historyContent[j + 1]));
-						int milliseconds = (int) Long
-								.parseLong(historyContent[j + 1]) % 1000;
-						String score = seconds + "." + milliseconds + "s";
-						players.append(prefix + historyContent[j] + ": "
-								+ score);
-						prefix = "\n";
-						j++;
-					} else {
-						players.append(prefix + historyContent[j] + ",");
-						prefix = "";
-					}
-				}
-				result.append("Game from ");
-				result.append(date.replace(";", ":"));
-				result.append(" on ");
-				result.append(trackName);
-				result.append("\n");
-				result.append(players);
 			}
 
 			client.clientGUI.addToChat(result.toString());
@@ -452,10 +419,8 @@ class ClientParser {
 	private void sendLobbyUnReadyRequestAndStartGame(String[] parts) {
 		client.commandQueue.add("LOBUR");
 		int numberOfPlayers = Integer.parseInt(parts[1]);
-		ArrayList<String> playerNames = new ArrayList<String>(numberOfPlayers);
-		for (int i = numberOfPlayers + 4; i < parts.length; i++) {
-			playerNames.add(parts[i]);
-		}
+		ArrayList<String> playerNames = new ArrayList<>(numberOfPlayers);
+		playerNames.addAll(Arrays.asList(parts).subList(numberOfPlayers + 4, parts.length));
 		int[] carIndices = new int[numberOfPlayers];
 		for (int i = 0; i < numberOfPlayers; i++) {
 			carIndices[i] = Integer.parseInt(parts[i + 3]);

@@ -11,6 +11,7 @@ import shared.game.powerup.Powerup;
  */
 
 public class Car {
+
 	private boolean upIsPressed = false;
 	private boolean downIsPressed = false;
 	private boolean leftIsPressed = false;
@@ -40,17 +41,18 @@ public class Car {
 	private final PowerRacerGame game;
 	int carType;
 
-	// calculation interval
+	private final ControlType controlType;
 
 	/*
 	 * The first constructor should be called to set the car on the "startline",
 	 * the second one is for testing.
 	 */
-	public Car(double x, double y, int carType, PowerRacerGame powerRacerGame) {
+	public Car(double x, double y, int carType, PowerRacerGame powerRacerGame, ControlType controlType) {
 		this.game = powerRacerGame;
 		this.x = x;
 		this.y = y;
 		this.carType = carType;
+		this.controlType = controlType;
 		/*
 		 * This constructor chooses which car should be created.
 		 */
@@ -92,75 +94,65 @@ public class Car {
 
 	}
 
-
-	/*
-	 * Functions to handle car movement through keyboard input.
-	 */
-
 	/*
 	 * Acceleration formula: v = v + a - (v * friction)
 	 */
-	protected void accelerate(double friction) {
-		speed = speed + acceleration - (speed * friction);
-	}
-
-	protected void slowDown(double friction) {
-		speed = speed - breaking - (speed * friction);
-	}
-
-	protected void turnLeft() {
-		rotation = (rotation + handling) % (2 * Math.PI);
-	}
-
-	protected void turnRight() {
-		rotation = -(rotation + handling) % (2 * Math.PI);
-	}
 
 	/**
-	 * Updates this car's speed and rotation according to the friction factor of
-	 * the underlying terrain.
+	 * Updates this car's speed and rotation according to the friction factor of the underlying terrain.
 	 *
 	 * @param frictionCoefficient the friction of the car's current terrain
 	 */
 	public void updateSpeedAndRotation(double frictionCoefficient) {
 		if (game.getBotOn()) {
-			/*
-			  Auto-Drive
-			 */
-			upIsPressed = true;
-			double rotLeft = this.getRotation() - Math.PI / 2;
-			ArrayList<MagicLine> magicLineList = new ArrayList<>();
-			for (int i = 0; rotLeft + i * handling <= rotLeft + Math.PI; i++) {
-				MagicLine ML = new MagicLine(rotLeft + i * handling);
-				magicLineList.add(ML);
-			}
-			int bestSteps = 0;
-			int bestMagicLine = 0;
-			for (int i = 0; i < magicLineList.size(); i++) {
-				if (magicLineList.get(i).calculateSteps(game, this) > bestSteps) {
-					bestSteps = magicLineList.get(i).calculateSteps(game, this);
-					bestMagicLine = i;
-				}
-			}
-			if (bestMagicLine < magicLineList.size() / 2 - 1) {
-				leftIsPressed = true;
-				rightIsPressed = false;
-			} else if (bestMagicLine > magicLineList.size() / 2 - 1) {
-				rightIsPressed = true;
-				leftIsPressed = false;
-			} else {
-				rightIsPressed = false;
-				leftIsPressed = false;
-			}
+			setAutopilotInput();
+			updateSpeedAndRotation(upIsPressed, downIsPressed, rightIsPressed, leftIsPressed, frictionCoefficient);
+			return;
 		}
 
+		boolean accelerate = getAccelerate();
+		boolean brake = getBrake();
+		boolean turnRight = getTurnRight();
+		boolean turnLeft = getTurnLeft();
+
+		updateSpeedAndRotation(accelerate, brake, turnRight, turnLeft, frictionCoefficient);
+	}
+
+	public boolean getAccelerate() {
+		return switch (controlType) {
+			case SIMPLE -> upIsPressed || downIsPressed || leftIsPressed || rightIsPressed;
+			case TANK -> upIsPressed;
+		};
+	}
+
+	public boolean getBrake() {
+		return switch (controlType) {
+			case SIMPLE -> !getAccelerate() && speed > 0;
+			case TANK -> downIsPressed;
+		};
+	}
+
+	public boolean getTurnRight() {
+		return switch (controlType) {
+			case SIMPLE -> inputRotationValid() && (rotation - getInputRotation() + 4 * Math.PI) % (2 * Math.PI) > Math.PI;
+			case TANK -> rightIsPressed;
+		};
+	}
+
+	public boolean getTurnLeft() {
+		return switch (controlType) {
+			case SIMPLE -> inputRotationValid() && (rotation - getInputRotation() + 4 * Math.PI) % (2 * Math.PI) < Math.PI;
+			case TANK -> leftIsPressed;
+		};
+	}
+
+	private void updateSpeedAndRotation(boolean accelerate, boolean brake, boolean turnRight, boolean turnLeft, double frictionCoefficient) {
 		/*
-		 * Check if up & down or left & right are pressed simultaniously if so,
-		 * do nothing.
+		 * Check if up & down or left & right are pressed simultaneously if so, do nothing.
 		 */
-		if (upIsPressed && !downIsPressed) {
+		if (accelerate && !brake) {
 			speed += acceleration - (speed * frictionCoefficient);
-		} else if (downIsPressed && !upIsPressed) {
+		} else if (brake && !accelerate) {
 			speed += breaking - (speed * frictionCoefficient);
 		} else {
 			speed -= (speed * frictionCoefficient);
@@ -170,16 +162,66 @@ public class Car {
 		}
 
 		if (speed != 0) {
-			if (leftIsPressed && !rightIsPressed) {
+			if (turnLeft && !turnRight) {
 				// mod 2PI if you complete a full circle
 				rotation = (rotation - (handling)) % (2 * Math.PI);
-				// rotation = (rotation - (handling/20*speed)) % (2 * Math.PI);
-			} else if (rightIsPressed && !leftIsPressed) {
+			} else if (turnRight && !turnLeft) {
 				// mod 2PI if you complete a full circle
 				rotation = (rotation + (handling)) % (2 * Math.PI);
 			}
 		}
+	}
 
+	private void setAutopilotInput() {
+		upIsPressed = true;
+		double rotLeft = this.getRotation() - Math.PI / 2;
+		ArrayList<MagicLine> magicLineList = new ArrayList<>();
+		for (int i = 0; rotLeft + i * handling <= rotLeft + Math.PI; i++) {
+			MagicLine ML = new MagicLine(rotLeft + i * handling);
+			magicLineList.add(ML);
+		}
+		int bestSteps = 0;
+		int bestMagicLine = 0;
+		for (int i = 0; i < magicLineList.size(); i++) {
+			if (magicLineList.get(i).calculateSteps(game, this) > bestSteps) {
+				bestSteps = magicLineList.get(i).calculateSteps(game, this);
+				bestMagicLine = i;
+			}
+		}
+		if (bestMagicLine < magicLineList.size() / 2 - 1) {
+			leftIsPressed = true;
+			rightIsPressed = false;
+		} else if (bestMagicLine > magicLineList.size() / 2 - 1) {
+			rightIsPressed = true;
+			leftIsPressed = false;
+		} else {
+			rightIsPressed = false;
+			leftIsPressed = false;
+		}
+	}
+
+	/**
+	 * Calculates the angle representation of the directional input in radians.
+	 */
+	private double getInputRotation() {
+		double x = 0, y = 0;
+		if (upIsPressed) {
+			y--;
+		}
+		if (downIsPressed) {
+			y++;
+		}
+		if (rightIsPressed) {
+			x++;
+		}
+		if (leftIsPressed) {
+			x--;
+		}
+		return Math.atan2(y, x);
+	}
+
+	private boolean inputRotationValid() {
+		return upIsPressed != downIsPressed || leftIsPressed != rightIsPressed;
 	}
 
 	public void setUp(boolean upIsPressed) {

@@ -15,8 +15,7 @@ import shared.game.powerup.RocketCollidable;
 import client.gui.Camera;
 
 /**
- * The Game object responsible for updating information and sending it to the
- * server.
+ * The Game object responsible for updating information and sending it to the server.
  *
  * @author Florian
  */
@@ -62,7 +61,7 @@ public class PowerRacerGame {
 			/*
 			 * Creates cars from car file (x-carpos,y-carpos,cartype)
 			 */
-			cars[i] = new Car(setStartingPositionX(i), setStartingPositionY(i), carTypes[i], this); // change last argument to change
+			cars[i] = new Car(setStartingPositionX(i), setStartingPositionY(i), carTypes[i], this, ControlType.TANK); // change last argument to change
 			// cartypes
 		}
 		for (int i = 0; i < track.numberOfItemBoxes(); i++) {
@@ -93,8 +92,7 @@ public class PowerRacerGame {
 	}
 
 	/**
-	 * Removes the Collidable with the id from the list. If there is no
-	 * Collidable with this id, does nothing.
+	 * Removes the Collidable with the id from the list. If there is no Collidable with this id, does nothing.
 	 *
 	 * @param id the id of the Collidable to be removed
 	 * @return whether a Collidable was removed or not
@@ -159,8 +157,7 @@ public class PowerRacerGame {
 	}
 
 	/**
-	 * Replaces a Collidable's ID. If Collidable with oldID does not exist, does
-	 * nothing.
+	 * Replaces a Collidable's ID. If Collidable with oldID does not exist, does nothing.
 	 *
 	 * @param oldID the id before
 	 * @param newID the id after
@@ -387,10 +384,10 @@ public class PowerRacerGame {
 				 * Send Input to server
 				 */
 				commandQueue.add("GINPI" + ":"
-						+ cars[i].getUpIsPressed() + ":"
-						+ cars[i].getDownIsPressed() + ":"
-						+ cars[i].getLeftIsPressed() + ":"
-						+ cars[i].getRightIsPressed() + ":"
+						+ cars[i].getAccelerate() + ":"
+						+ cars[i].getBrake() + ":"
+						+ cars[i].getTurnLeft() + ":"
+						+ cars[i].getTurnRight() + ":"
 						+ cars[i].getX() + ":" + cars[i].getY() + ":"
 						+ cars[i].getSpeed() + ":" + cars[i].getRotation());
 			}
@@ -516,7 +513,7 @@ public class PowerRacerGame {
 	}
 
 	public boolean addCollidableFromPacket(int collidableIdentifier, double x,
-										   double y, double rotation, int id) {
+			double y, double rotation, int id) {
 		Collidable collidable = null;
 		switch (collidableIdentifier) {
 			case 0 -> collidable = new RocketCollidable(x, y, rotation, this, id);
