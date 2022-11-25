@@ -20,14 +20,14 @@ class UpdateManager extends Thread {
 		ServerGUI.addToConsole("UpdateManager started.");
 		try {
 			while (!terminate) {
-				for (int i = 0; i < LobbyManager.lobbylist.size(); i++) {
-					if (LobbyManager.lobbylist.get(i).getLobbylist().size() == 0) {
-						LobbyLogic.sendLobbyDeletion(LobbyManager.lobbylist
+				for (int i = 0; i < LobbyManager.lobbyList.size(); i++) {
+					if (LobbyManager.lobbyList.get(i).getLobbylist().size() == 0) {
+						LobbyLogic.sendLobbyDeletion(LobbyManager.lobbyList
 								.get(i).getLobbyID());
 						ServerGUI.addToConsole("Lobby with ID: "
-								+ LobbyManager.lobbylist.get(i).getLobbyID()
+								+ LobbyManager.lobbyList.get(i).getLobbyID()
 								+ " destroyed.");
-						LobbyManager.lobbylist.remove(i);
+						LobbyManager.lobbyList.remove(i);
 					}
 				}
 				Thread.sleep(5000);

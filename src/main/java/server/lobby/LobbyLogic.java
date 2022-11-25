@@ -45,7 +45,7 @@ public class LobbyLogic {
 	 *            which logs out
 	 */
 	public static void sendLogoutAccept(Player player) {
-		if (PlayerManager.playerlist.contains(player)) {
+		if (PlayerManager.playerList.contains(player)) {
 			player.commandQueue.add("LGOUA:" + player.getName());
 			try {
 				Thread.sleep(500);
@@ -66,7 +66,7 @@ public class LobbyLogic {
 	 *            which gets removed
 	 */
 	public static void removePlayerComplete(Player player) {
-		if (PlayerManager.playerlist.contains(player)) {
+		if (PlayerManager.playerList.contains(player)) {
 			if (player.getGame() != null) {
 				GameLogic.sendPauseAndFinishedPacket(player);
 			}
@@ -94,7 +94,7 @@ public class LobbyLogic {
 	 *            which tries to log in
 	 */
 	public static void sendFullServer(Player player) {
-		player.commandQueue.add("LGIND:" + PlayerManager.playerlist.size());
+		player.commandQueue.add("LGIND:" + PlayerManager.playerList.size());
 	}
 
 	/**

@@ -6,17 +6,12 @@ import server.game.GameManager;
  * All the methods that need to be run at the creation of a new server. Creates
  * the static objects playerManager, lobbyManager, updateManager, checkinServer
  * and starts the threads of CheckinServer and UpdateManager.
- * 
- * @author marco
- *
  */
 
 public class CreateServer {
 
-	static PlayerManager playerManager;
 	static CheckinServer checkinServer;
 	static UpdateManager updateManager;
-	static LobbyManager lobbyManager;
 	static GameManager gameManager;
 	static ServerGUI serverGUI;
 	static int port = 21000;
@@ -25,8 +20,6 @@ public class CreateServer {
 	 * Creates all the needed objects and start all the needed threads.
 	 */
 	public static void create() {
-		createPlayerManager();
-		createLobbyManager();
 		createUpdateManager();
 		createCheckinServer();
 		createGameManager();
@@ -49,9 +42,8 @@ public class CreateServer {
 	/**
 	 * Creates all the needed objects and start all the needed threads at the
 	 * specific port.
-	 * 
-	 * @param port
-	 *            specified port for communication
+	 *
+	 * @param port specified port for communication
 	 */
 	public static void create(int port) {
 		CreateServer.port = port;
@@ -71,10 +63,6 @@ public class CreateServer {
 		updateManager.terminate();
 	}
 
-	private static void createLobbyManager() {
-		lobbyManager = new LobbyManager();
-	}
-
 	private static void startCheckinServer() {
 		checkinServer.start();
 	}
@@ -89,10 +77,6 @@ public class CreateServer {
 
 	private static void createUpdateManager() {
 		updateManager = new UpdateManager();
-	}
-
-	private static void createPlayerManager() {
-		playerManager = new PlayerManager();
 	}
 
 	private static void createGameManager() {

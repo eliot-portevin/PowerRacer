@@ -57,9 +57,9 @@ public class ParserTest {
 
 		parser = new Parser(testPlayer);
 
-		System.out.println(PlayerManager.playerlist.contains(testPlayer));
+		System.out.println(PlayerManager.playerList.contains(testPlayer));
 		testPlayer.kick("kick!");
-		System.out.println(PlayerManager.playerlist.contains(testPlayer));
+		System.out.println(PlayerManager.playerList.contains(testPlayer));
 	}
 
 	public static void createPlayer() {
@@ -75,7 +75,7 @@ public class ParserTest {
 			e.printStackTrace();
 		}
 
-		testPlayer = PlayerManager.playerlist.get(0);
+		testPlayer = PlayerManager.playerList.get(0);
 		PlayerManager.newPlayerLogin(testPlayer, "testPlayer");
 		testPlayer.playerSocket.setHeartBeatOff();
 	}

@@ -13,8 +13,6 @@ import java.util.Arrays;
 class CheckinServer extends Thread {
 
 	private static int PORT;
-	public PlayerManager playerManager;
-	private ServerSocket s_Socket;
 	private boolean terminate;
 
 	/**
@@ -33,14 +31,12 @@ class CheckinServer extends Thread {
 	public void run() {
 		ServerGUI.addToConsole("CheckinServer started and listening on port: "
 				+ PORT + ".");
-		try {
-			s_Socket = new ServerSocket(PORT);
+		try (ServerSocket s_Socket = new ServerSocket(PORT)) {
 			while (!terminate) {
+				Socket in_Socket = s_Socket.accept();
 				if (PlayerManager.hasSpace()) {
-					Socket in_Socket = s_Socket.accept();
 					PlayerManager.addUser(in_Socket);
 				} else {
-					Socket in_Socket = s_Socket.accept();
 					Player tempPlayer = PlayerManager
 							.addUserOnlyForDenial(in_Socket);
 					LobbyLogic.sendFullServer(tempPlayer);

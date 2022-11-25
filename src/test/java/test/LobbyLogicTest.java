@@ -87,8 +87,8 @@ public class LobbyLogicTest {
 
 		// we get references of the player-objects out of the playermanager for
 		// a more easy access.
-		testPlayer = PlayerManager.playerlist.get(0);
-		testPlayerCopy = PlayerManager.playerlist.get(1);
+		testPlayer = PlayerManager.playerList.get(0);
+		testPlayerCopy = PlayerManager.playerList.get(1);
 
 		// let the two players login on the server and choose a name.
 		PlayerManager.newPlayerLogin(testPlayer, "testPlayer");
@@ -141,8 +141,8 @@ public class LobbyLogicTest {
 			e.printStackTrace();
 		}
 
-		int listSize = PlayerManager.playerlist.size();
-		Player temporaryPlayer = PlayerManager.playerlist.get(listSize - 1);
+		int listSize = PlayerManager.playerList.size();
+		Player temporaryPlayer = PlayerManager.playerList.get(listSize - 1);
 		LobbyLogic.newPlayerLogin(temporaryPlayer, "joiningPlayer");
 
 		// heartbeats are annoying for testing
@@ -172,9 +172,9 @@ public class LobbyLogicTest {
 		sb.append(':');
 		String assertionPacket = sb.toString();
 
-		PlayerManager.playerlist.clear();
-		PlayerManager.playerlist.add(testPlayer);
-		PlayerManager.playerlist.add(testPlayerCopy);
+		PlayerManager.playerList.clear();
+		PlayerManager.playerList.add(testPlayer);
+		PlayerManager.playerList.add(testPlayerCopy);
 
 		assertEquals(assertionPacket, PlayerManager.getAllOnlinePlayerNames());
 	}
@@ -217,7 +217,7 @@ public class LobbyLogicTest {
 		LobbyLogic.sendLogoutAccept(logOutPlayer);
 
 		// assert that the player was really removed
-		assertFalse(PlayerManager.playerlist.contains(logOutPlayer));
+		assertFalse(PlayerManager.playerList.contains(logOutPlayer));
 
 		LobbyLogic.removePlayerComplete(logOutPlayer);
 
@@ -270,7 +270,7 @@ public class LobbyLogicTest {
 	@Test
 	public void testSendFullServer() {
 		// LGIND is login denied
-		String assertionPacket = "LGIND:" + PlayerManager.playerlist.size();
+		String assertionPacket = "LGIND:" + PlayerManager.playerList.size();
 		LobbyLogic.sendFullServer(testPlayer);
 		assertEquals(assertionPacket, testPlayer.commandQueue.remove());
 	}
@@ -420,10 +420,7 @@ public class LobbyLogicTest {
 	}
 
 	/**
-	 * Test method for asserting that a lobby message reaches the players in the
-	 * same lobby. lobby
-	 * {@link #lobbyMessage(Player, String)}
-	 * .
+	 * Test method for asserting that a lobby message reaches the players in the same lobby.
 	 */
 	@Test
 	public void testLobbyMessage() {
@@ -685,7 +682,7 @@ public class LobbyLogicTest {
 		Player joiningPlayer = createNewTemporaryPlayer();
 
 		// assert that the joining player is on the server
-		assertTrue(PlayerManager.playerlist.contains(joiningPlayer));
+		assertTrue(PlayerManager.playerList.contains(joiningPlayer));
 
 		// remove this player, that one's obsolete now
 		LobbyLogic.removePlayerComplete(joiningPlayer);
@@ -712,11 +709,11 @@ public class LobbyLogicTest {
 		}
 		// the playermanager should not hold that user
 		assertEquals(PlayerManager.getMaxUser(),
-				PlayerManager.playerlist.size());
+				PlayerManager.playerList.size());
 
 		// remove all temporary players
 		for (int i = PlayerManager.getMaxUser() - 1; i > 2; i--) {
-			LobbyLogic.removePlayerComplete(PlayerManager.playerlist.get(i));
+			LobbyLogic.removePlayerComplete(PlayerManager.playerList.get(i));
 		}
 	}
 
@@ -740,7 +737,7 @@ public class LobbyLogicTest {
 
 		// test case when name is already in use
 		String assertionPacket = "NAMCD:" + testPlayer.getName();
-		LobbyLogic.nameChangeRequest(testPlayer, PlayerManager.playerlist
+		LobbyLogic.nameChangeRequest(testPlayer, PlayerManager.playerList
 				.get(0).getName());
 		assertEquals(assertionPacket, testPlayer.commandQueue.remove());
 

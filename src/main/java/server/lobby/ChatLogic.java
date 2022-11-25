@@ -10,8 +10,8 @@ class ChatLogic {
 	 */
 	public static void worldMessage(Player player, String msg) {
 		String packet = "CALLM:" + player.name + ":" + msg;
-		for (int i = 0; i < PlayerManager.playerlist.size(); i++) {
-			PlayerManager.playerlist.get(i).commandQueue.add(packet);
+		for (int i = 0; i < PlayerManager.playerList.size(); i++) {
+			PlayerManager.playerList.get(i).commandQueue.add(packet);
 		}
 	}
 
@@ -57,8 +57,8 @@ class ChatLogic {
 	 */
 	public static void serverBroadcast(String msg) {
 		String packet = "SBROI:" + msg;
-		for (int i = 0; i < PlayerManager.playerlist.size(); i++) {
-			PlayerManager.playerlist.get(i).commandQueue.add(packet);
+		for (int i = 0; i < PlayerManager.playerList.size(); i++) {
+			PlayerManager.playerList.get(i).commandQueue.add(packet);
 		}
 	}
 }

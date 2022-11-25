@@ -51,11 +51,11 @@ public class GameLogic {
 		String packet = sb.toString();
 
 		// iterate through whole playerlist
-		for (int i = 0; i < PlayerManager.playerlist.size(); i++) {
+		for (int i = 0; i < PlayerManager.playerList.size(); i++) {
 			// send packet to all players in the same game except for the sender
-			if ((PlayerManager.playerlist.get(i).getGame() == player.getGame())
-					&& (PlayerManager.playerlist.get(i) != player)) {
-				PlayerManager.playerlist.get(i).commandQueue.add(packet);
+			if ((PlayerManager.playerList.get(i).getGame() == player.getGame())
+					&& (PlayerManager.playerList.get(i) != player)) {
+				PlayerManager.playerList.get(i).commandQueue.add(packet);
 			}
 		}
 	}
@@ -133,10 +133,10 @@ public class GameLogic {
 		}
 		String packet = result.toString();
 		DataLogic.writeNewGameInformationInCSV(player, packet);
-		for (int i = 0; i < PlayerManager.playerlist.size(); i++) {
+		for (int i = 0; i < PlayerManager.playerList.size(); i++) {
 			// send packet to all players in the same game
-			if ((PlayerManager.playerlist.get(i).getGame() == player.getGame())) {
-				PlayerManager.playerlist.get(i).commandQueue.add(packet);
+			if ((PlayerManager.playerList.get(i).getGame() == player.getGame())) {
+				PlayerManager.playerList.get(i).commandQueue.add(packet);
 			}
 		}
 		ServerGUI.addToConsole("Finished game with players: "
@@ -151,9 +151,9 @@ public class GameLogic {
 	 *            object which is updated
 	 */
 	public static void startTimer(PowerRacerGame game) {
-		for (int i = 0; i < PlayerManager.playerlist.size(); i++) {
-			if (PlayerManager.playerlist.get(i).getGame() == game) {
-				PlayerManager.playerlist.get(i).setStartTime(
+		for (int i = 0; i < PlayerManager.playerList.size(); i++) {
+			if (PlayerManager.playerList.get(i).getGame() == game) {
+				PlayerManager.playerList.get(i).setStartTime(
 						System.currentTimeMillis());
 			}
 		}
@@ -161,10 +161,10 @@ public class GameLogic {
 
 	public static void sendPacketToAllPlayers(PowerRacerGame game, String packet) {
 		// iterate through whole playerlist
-		for (int i = 0; i < PlayerManager.playerlist.size(); i++) {
+		for (int i = 0; i < PlayerManager.playerList.size(); i++) {
 			// send packet to all players in the same game except for the sender
-			if ((PlayerManager.playerlist.get(i).getGame() == game)) {
-				PlayerManager.playerlist.get(i).commandQueue.add(packet);
+			if ((PlayerManager.playerList.get(i).getGame() == game)) {
+				PlayerManager.playerList.get(i).commandQueue.add(packet);
 			}
 		}
 
@@ -211,11 +211,11 @@ public class GameLogic {
 
 	public static void sendPacketToOtherPlayers(Player player, String packet) {
 		// iterate through whole playerlist
-		for (int i = 0; i < PlayerManager.playerlist.size(); i++) {
+		for (int i = 0; i < PlayerManager.playerList.size(); i++) {
 			// send packet to all players in the same game except for the sender
-			if ((PlayerManager.playerlist.get(i).getGame() == player.getGame())
-					&& (PlayerManager.playerlist.get(i) != player)) {
-				PlayerManager.playerlist.get(i).commandQueue.add(packet);
+			if ((PlayerManager.playerList.get(i).getGame() == player.getGame())
+					&& (PlayerManager.playerList.get(i) != player)) {
+				PlayerManager.playerList.get(i).commandQueue.add(packet);
 			}
 		}
 	}

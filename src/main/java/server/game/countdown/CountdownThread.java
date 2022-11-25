@@ -27,10 +27,10 @@ public class CountdownThread extends Thread {
 		try {
 			Thread.sleep(1000);
 			for (int i = 3; i >= 0; i--) {
-				for (int j = 0; j < PlayerManager.playerlist.size(); j++) {
-					if (PlayerManager.playerlist.get(j).getGame() != null) {
-						if (PlayerManager.playerlist.get(j).getGame() == game) {
-							PlayerManager.playerlist.get(j).commandQueue
+				for (int j = 0; j < PlayerManager.playerList.size(); j++) {
+					if (PlayerManager.playerList.get(j).getGame() != null) {
+						if (PlayerManager.playerList.get(j).getGame() == game) {
+							PlayerManager.playerList.get(j).commandQueue
 									.add("GCODI:countdown:" + i);
 						}
 					}

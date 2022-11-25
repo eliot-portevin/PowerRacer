@@ -2,8 +2,6 @@ package server.game;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import client.gui.RandomMapGenerator;
@@ -13,7 +11,6 @@ import server.lobby.Lobby;
 import server.lobby.PlayerManager;
 import server.lobby.ServerGUI;
 import shared.game.PowerRacerGame;
-import shared.game.RaceTrack;
 
 /**
  * Handles the gamelist by adding and removing games.
@@ -117,9 +114,9 @@ public class GameManager {
 	 */
 	public static void removeGame(PowerRacerGame game) {
 		for (String s : game.getPlayers()) {
-			for (int i = 0; i < PlayerManager.playerlist.size(); i++) {
-				if (PlayerManager.playerlist.get(i).getName().equals(s)) {
-					PlayerManager.playerlist.get(i).setGame(null);
+			for (int i = 0; i < PlayerManager.playerList.size(); i++) {
+				if (PlayerManager.playerList.get(i).getName().equals(s)) {
+					PlayerManager.playerList.get(i).setGame(null);
 				}
 			}
 		}

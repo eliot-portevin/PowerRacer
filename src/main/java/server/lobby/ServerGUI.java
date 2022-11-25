@@ -120,13 +120,13 @@ public class ServerGUI {
 						break serverLoop;
 					case "players":
 						System.out.println("Currently online players:");
-						for (Player player : PlayerManager.playerlist) {
+						for (Player player : PlayerManager.playerList) {
 							System.out.println("  \"" + player.name + "\" - " + player.id);
 						}
 						break;
 					case "lobbies":
 						System.out.println("Currently available lobbies:");
-						for (Lobby lobby : LobbyManager.lobbylist) {
+						for (Lobby lobby : LobbyManager.lobbyList) {
 							System.out.println("  ID: " + lobby.lobbyID);
 							System.out.println("    Track: " + RaceTrack.getTrackName(lobby.getTrack()));
 							System.out.println("    Creator: " + lobby.creatorPlayer.name);
@@ -185,7 +185,7 @@ public class ServerGUI {
 											break;
 										}
 										LobbyLogic.sendLobbyDeletion(lobbyId);
-										LobbyManager.lobbylist.remove(lobby);
+										LobbyManager.lobbyList.remove(lobby);
 										ServerGUI.addToConsole("Lobby with ID " + lobbyId + " destroyed.");
 									} catch (NumberFormatException e) {
 										System.err.println("Lobby ID must be an integer!");
