@@ -5,13 +5,10 @@ import shared.game.RaceTrack;
 import javax.swing.*;
 import java.awt.*;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Scanner;
 
 /**
  * Small GUI for server host to monitor activity and kick players.
- *
- * @author Florian
  */
 public class ServerGUI {
 
@@ -40,18 +37,10 @@ public class ServerGUI {
 		serverConsole.setMinimumSize(new Dimension(300, 30));
 		serverConsole.addActionListener(e -> {
 			if (serverConsole.getText().length() != 0) {
-				String text = serverConsole.getText();
-				if (text.split(":")[0].equals("\\k")) {
-					String[] parts = text.split(":");
-					if (text.split(":").length == 3) {
-						Objects.requireNonNull(PlayerManager.getPlayerWithName(parts[1])).kick(parts[2]);
-					} else {
-						ServerGUI
-								.addToConsole("Not the right number of \":\"\n\\k:name:reason");
-					}
-				} else {
-					ChatLogic.serverBroadcast(text);
-				}
+				String input = serverConsole.getText();
+				addToConsole("> " + input);
+				if (parseInput(input))
+					addToConsole("Please use the window buttons to quit the server in GUI mode.");
 				serverConsole.setText("");
 			}
 		});
@@ -78,23 +67,63 @@ public class ServerGUI {
 	}
 
 	/**
-	 * Adds the argument message to the JTextArea chatBox and scrolls its Focus
-	 * down to the new message.
+	 * Adds the message to the appropriate server console.
 	 *
-	 * @param message text to be added to chat
+	 * @param message text to be added to console
 	 */
 	public static void addToConsole(String message) {
+		addToConsole(message, false);
+	}
+
+	/**
+	 * Adds the message to the appropriate server console.
+	 * In case of a headless server prints the message to the error stream.
+	 *
+	 * @param message text to be added to console
+	 */
+	public static void addToErrorConsole(String message) {
+		addToConsole(message, true);
+	}
+
+	private static void addToConsole(String message, boolean error) {
 		if (serverGUI != null) {
 			serverGUI.serverChatBox.append(message + "\n");
-			serverGUI.serverChatBox.setCaretPosition(serverGUI.serverChatBox
-					.getDocument().getLength());
+			serverGUI.serverChatBox.setCaretPosition(serverGUI.serverChatBox.getDocument().getLength());
 		} else {
-			System.out.println(message);
+			if (error) {
+				System.err.println(message);
+			} else {
+				System.out.println(message);
+			}
 		}
 	}
 
 	public static void runServerConsole() {
-		System.out.println("Headless server ready! Type \"help\" for a list of commands.");
+		addToConsole("Headless server ready! Type \"help\" for a list of commands.");
+
+		Scanner scan = new Scanner(System.in);
+		while (true) {
+			try {
+				String input = scan.nextLine();
+				if (parseInput(input))
+					break;
+			} catch (NoSuchElementException e) {
+				// CTRL-D detected
+				break;
+			}
+		}
+		addToConsole("Exiting server...");
+		System.exit(0);
+	}
+
+	/**
+	 * Parses a server console input string.
+	 *
+	 * @param input string to process
+	 * @return true if the server should exit
+	 */
+	private static boolean parseInput(String input) {
+		String lowerInput = input.toLowerCase();
 		String helpMessage = """
 				Available commands:
 				  help - Print this help dialog.
@@ -105,106 +134,93 @@ public class ServerGUI {
 				  lobbies - List currently open lobbies.
 				  exit - Exit server.
 				  quit - Quit server.""";
-		Scanner scan = new Scanner(System.in);
-		serverLoop:
-		while (true) {
-			try {
-				String input = scan.nextLine();
-				String lowerInput = input.toLowerCase();
-				switch (lowerInput) {
-					case "help":
-						System.out.println(helpMessage);
-						break;
-					case "exit":
-					case "quit":
-						break serverLoop;
-					case "players":
-						System.out.println("Currently online players:");
-						for (Player player : PlayerManager.playerList) {
-							System.out.println("  \"" + player.name + "\" - " + player.id);
+		switch (lowerInput) {
+			case "help":
+				addToConsole(helpMessage);
+				break;
+			case "exit":
+			case "quit":
+				return true;
+			case "players":
+				addToConsole("Currently online players:");
+				for (Player player : PlayerManager.playerList) {
+					addToConsole("  \"" + player.name + "\" - " + player.id);
+				}
+				break;
+			case "lobbies":
+				addToConsole("Currently available lobbies:");
+				for (Lobby lobby : LobbyManager.lobbyList) {
+					addToConsole("  ID: " + lobby.lobbyID);
+					addToConsole("    Track: " + RaceTrack.getTrackName(lobby.getTrack()));
+					addToConsole("    Creator: " + lobby.creatorPlayer.name);
+					addToConsole("    Players: " + String.join(", ", lobby.lobbylist.stream()
+							.map(player -> player.name).toArray(String[]::new)));
+				}
+				break;
+			default:
+				String[] parts = input.split(":");
+				if (parts.length == 0)
+					break;
+				String command = parts[0];
+				switch (command) {
+					case "k":
+						if (parts.length == 3) {
+							Player player;
+							try {
+								int id = Integer.parseInt(parts[1]);
+								player = PlayerManager.getPlayerWithId(id);
+								if (player == null)
+									player = PlayerManager.getPlayerWithName(parts[1]);
+							} catch (NumberFormatException e) {
+								player = PlayerManager.getPlayerWithName(parts[1]);
+							}
+							if (player != null) {
+								player.kick(parts[2]);
+							} else {
+								addToErrorConsole("No player with name or ID \"" + parts[1] + "\"!");
+							}
+						} else {
+							addToErrorConsole("Kick command formatted incorrectly!");
+							addToConsole(helpMessage);
 						}
 						break;
-					case "lobbies":
-						System.out.println("Currently available lobbies:");
-						for (Lobby lobby : LobbyManager.lobbyList) {
-							System.out.println("  ID: " + lobby.lobbyID);
-							System.out.println("    Track: " + RaceTrack.getTrackName(lobby.getTrack()));
-							System.out.println("    Creator: " + lobby.creatorPlayer.name);
-							System.out.println("    Players: " + String.join(", ",
-									lobby.lobbylist.stream()
-											.map(player -> player.name).toArray(String[]::new)));
+					case "b":
+						if (parts.length == 2) {
+							String broadcast = parts[1];
+							ChatLogic.serverBroadcast(broadcast);
+						} else {
+							addToErrorConsole("Broadcast command formatted incorrectly!");
+							addToConsole(helpMessage);
+						}
+						break;
+					case "rmlobby":
+						if (parts.length == 2) {
+							try {
+								int lobbyId = Integer.parseInt(parts[1]);
+								Lobby lobby = LobbyManager.getLobby(lobbyId);
+								if (lobby == null) {
+									addToErrorConsole("Lobby with ID " + lobbyId + " does not exist!");
+									break;
+								}
+								if (lobby.getLobbylist().size() > 0) {
+									addToErrorConsole("Lobby with ID " + lobbyId + " is not empty!");
+									break;
+								}
+								LobbyLogic.sendLobbyDeletion(lobbyId);
+								LobbyManager.lobbyList.remove(lobby);
+								ServerGUI.addToConsole("Lobby with ID " + lobbyId + " destroyed.");
+							} catch (NumberFormatException e) {
+								addToErrorConsole("Lobby ID must be an integer!");
+							}
+						} else {
+							addToErrorConsole("Remove lobby command formatted incorrectly!");
+							addToConsole(helpMessage);
 						}
 						break;
 					default:
-						String[] parts = input.split(":");
-						if (parts.length == 0)
-							break;
-						String command = parts[0];
-						switch (command) {
-							case "k":
-								if (parts.length == 3) {
-									Player player;
-									try {
-										int id = Integer.parseInt(parts[1]);
-										player = PlayerManager.getPlayerWithId(id);
-										if (player == null)
-											player = PlayerManager.getPlayerWithName(parts[1]);
-									} catch (NumberFormatException e) {
-										player = PlayerManager.getPlayerWithName(parts[1]);
-									}
-									if (player != null) {
-										player.kick(parts[2]);
-									} else {
-										System.err.println("No player with name or ID \"" + parts[1] + "\"!");
-									}
-								} else {
-									System.err.println("Kick command formatted incorrectly!");
-									System.out.println(helpMessage);
-								}
-								break;
-							case "b":
-								if (parts.length == 2) {
-									String broadcast = parts[1];
-									ChatLogic.serverBroadcast(broadcast);
-								} else {
-									System.err.println("Broadcast command formatted incorrectly!");
-									System.out.println(helpMessage);
-								}
-								break;
-							case "rmlobby":
-								if (parts.length == 2) {
-									try {
-										int lobbyId = Integer.parseInt(parts[1]);
-										Lobby lobby = LobbyManager.getLobby(lobbyId);
-										if (lobby == null) {
-											System.err.println("Lobby with ID " + lobbyId + " does not exist!");
-											break;
-										}
-										if (lobby.getLobbylist().size() > 0) {
-											System.err.println("Lobby with ID " + lobbyId + " is not empty!");
-											break;
-										}
-										LobbyLogic.sendLobbyDeletion(lobbyId);
-										LobbyManager.lobbyList.remove(lobby);
-										ServerGUI.addToConsole("Lobby with ID " + lobbyId + " destroyed.");
-									} catch (NumberFormatException e) {
-										System.err.println("Lobby ID must be an integer!");
-									}
-								} else {
-									System.err.println("Remove lobby command formatted incorrectly!");
-									System.out.println(helpMessage);
-								}
-								break;
-							default:
-								System.err.println("Unknown command \"" + input + "\"");
-						}
+						addToErrorConsole("Unknown command \"" + input + "\"");
 				}
-			} catch (NoSuchElementException e) {
-				// CTRL-D detected
-				break;
-			}
 		}
-		System.out.println("Exiting server...");
-		System.exit(0);
+		return false;
 	}
 }

@@ -379,7 +379,7 @@ public class ClientGUI {
 			serverButton.setEnabled(false);
 			serverIp.setVisible(true);
 			refresh();
-			ServerGUI.addToConsole("Welcome to the Server Console!\nEnter text below to broadcast to all players.");
+			ServerGUI.addToConsole("Welcome to the Server Console!\nType \"help\" for a list of commands.");
 		});
 		joinButton.addActionListener(e -> connect(addresses[select].getHostName()));
 		ActionListener hostConnectListener = e -> {
