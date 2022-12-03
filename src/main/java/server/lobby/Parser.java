@@ -9,24 +9,18 @@ import shared.protocol.Protocol;
  * Parser which parses the incoming packets and processes them to give a answer.
  * Got many references to have an easier access to the needed fields and
  * methods.
- * 
- * @author marco
- * @author benzumbrunn
- *
  */
 public class Parser {
 
 	private static final int PACKET_LENGTH = 5;
-	private Player player;
-	private String[] parts; // Array containing the parsed package
+	private final Player player;
 	private int gameFinishedinputTracker;
 
 	/**
 	 * Constructor of the parser object with many references for an easier
 	 * access.
-	 * 
-	 * @param player
-	 *            the parser's player
+	 *
+	 * @param player the parser's player
 	 */
 	public Parser(Player player) {
 		this.player = player;
@@ -36,21 +30,21 @@ public class Parser {
 	 * Parses the incoming packet and checks if it is defined in the protocol.
 	 * If yes, process the packet and gives a respond or start methods to give
 	 * respond.
-	 * 
-	 * @param inComPack
-	 *            the string contents of the incoming packet
+	 *
+	 * @param inComPack the string contents of the incoming packet
 	 */
 	public void parse(String inComPack) {
 
 		if (inComPack != null && inComPack.length() >= 5
 				&& enumContains(inComPack.substring(0, PACKET_LENGTH))
 				&& player.getID() != 99999) {
-			parts = inComPack.split(":"); // Generate String array out of the
-										  // package
+			// Array containing the parsed package
+			String[] parts = inComPack.split(":"); // Generate String array out of the
+			// package
 			switch (Protocol.valueOf(inComPack.substring(0, PACKET_LENGTH))) {
 				case LGINR:
 					if (checkPacket(parts, 2,
-							new String[] { "string", "string" })) {
+							new String[]{"string", "string"})) {
 						if (player.getName().equals("")) {
 							LobbyLogic.newPlayerLogin(this.player, parts[1]);
 						} else {
@@ -65,7 +59,7 @@ public class Parser {
 					}
 					break;
 				case LGOUR:
-					if (checkPacket(parts, 1, new String[] { "string" })) {
+					if (checkPacket(parts, 1, new String[]{"string"})) {
 						LobbyLogic.sendLogoutAccept(this.player);
 					} else {
 						ServerGUI.addToConsole("Wrongly formatted packet:"
@@ -75,7 +69,7 @@ public class Parser {
 					break;
 				case NAMCR:
 					if (checkPacket(parts, 2,
-							new String[] { "string", "string" })) {
+							new String[]{"string", "string"})) {
 						LobbyLogic.nameChangeRequest(this.player, parts[1]);
 					} else {
 						ServerGUI.addToConsole("Wrongly formatted packet:"
@@ -85,7 +79,7 @@ public class Parser {
 					break;
 				case CALLR:
 					if (checkPacket(parts, 2,
-							new String[] { "string", "string" })) {
+							new String[]{"string", "string"})) {
 						LobbyLogic.worldMessage(this.player, parts[1]);
 					} else {
 						ServerGUI.addToConsole("Wrongly formatted packet:"
@@ -95,7 +89,7 @@ public class Parser {
 					break;
 				case CLOBR:
 					if (checkPacket(parts, 2,
-							new String[] { "string", "string" })) {
+							new String[]{"string", "string"})) {
 						if (player.getLobby() != null) {
 							LobbyLogic.lobbyMessage(this.player, parts[1]);
 						} else {
@@ -110,8 +104,8 @@ public class Parser {
 					}
 					break;
 				case CWHIR:
-					if (checkPacket(parts, 4, new String[] { "string",
-							"string", "string", "string" })) {
+					if (checkPacket(parts, 4, new String[]{"string",
+							"string", "string", "string"})) {
 						LobbyLogic.privateMessage(player.getName(), parts[2],
 								parts[3]);
 					} else {
@@ -121,7 +115,7 @@ public class Parser {
 					}
 					break;
 				case HBTCR:
-					if (checkPacket(parts, 1, new String[] { "string" })) {
+					if (checkPacket(parts, 1, new String[]{"string"})) {
 						LobbyLogic.answerHeartbeat(this.player);
 					} else {
 						ServerGUI.addToConsole("Wrongly formatted packet:"
@@ -130,7 +124,7 @@ public class Parser {
 					}
 					break;
 				case WHOOR:
-					if (checkPacket(parts, 1, new String[] { "string" })) {
+					if (checkPacket(parts, 1, new String[]{"string"})) {
 						LobbyLogic.whoIsOnline(this.player);
 					} else {
 						ServerGUI.addToConsole("Wrongly formatted packet:"
@@ -139,7 +133,7 @@ public class Parser {
 					}
 					break;
 				case LOBCR:
-					if (checkPacket(parts, 2, new String[] { "string", "byte" })) {
+					if (checkPacket(parts, 2, new String[]{"string", "byte"})) {
 						if (Byte.parseByte(parts[1]) < RaceTrack
 								.numberOfTracks()) {
 							LobbyLogic.createNewLobby(this.player, parts[1]);
@@ -156,7 +150,7 @@ public class Parser {
 					}
 					break;
 				case LOBJR:
-					if (checkPacket(parts, 2, new String[] { "string", "int" })) {
+					if (checkPacket(parts, 2, new String[]{"string", "int"})) {
 						if (LobbyManager.getLobby(Integer.parseInt(parts[1])) != null) {
 							LobbyLogic.joinLobby(this.player,
 									Integer.parseInt(parts[1]));
@@ -172,7 +166,7 @@ public class Parser {
 					}
 					break;
 				case LOBLR:
-					if (checkPacket(parts, 1, new String[] { "string" })) {
+					if (checkPacket(parts, 1, new String[]{"string"})) {
 						if (player.getLobby() != null) {
 							LobbyLogic.leaveLobby(this.player, this.player
 									.getLobby().getLobbyID());
@@ -190,7 +184,7 @@ public class Parser {
 					}
 					break;
 				case HBTSA:
-					if (checkPacket(parts, 1, new String[] { "string" })) {
+					if (checkPacket(parts, 1, new String[]{"string"})) {
 						LobbyLogic.setHeartbeat(this.player);
 					} else {
 						ServerGUI.addToConsole("Wrongly formatted packet:"
@@ -199,7 +193,7 @@ public class Parser {
 					}
 					break;
 				case LOBRR:
-					if (checkPacket(parts, 2, new String[] { "string", "int" })) {
+					if (checkPacket(parts, 2, new String[]{"string", "int"})) {
 						if (player.getLobby() != null) {
 							LobbyLogic.playerLobbyReady(this.player, parts[1]);
 						} else {
@@ -215,7 +209,7 @@ public class Parser {
 					}
 					break;
 				case LOBUR:
-					if (checkPacket(parts, 1, new String[] { "string" })) {
+					if (checkPacket(parts, 1, new String[]{"string"})) {
 						if (player.getLobby() != null) {
 							LobbyLogic.playerLobbyUnready(this.player);
 						} else {
@@ -231,9 +225,9 @@ public class Parser {
 					}
 					break;
 				case GINPI:
-					if (checkPacket(parts, 9, new String[] { "string",
+					if (checkPacket(parts, 9, new String[]{"string",
 							"boolean", "boolean", "boolean", "boolean",
-							"double", "double", "double", "double" })) {
+							"double", "double", "double", "double"})) {
 						if (player.getGame() != null) {
 							gameFinishedinputTracker = 0;
 							GameLogic.sendInformationToOtherPlayers(
@@ -256,7 +250,7 @@ public class Parser {
 					}
 					break;
 				case GFINI:
-					if (checkPacket(parts, 1, new String[] { "string" })) {
+					if (checkPacket(parts, 1, new String[]{"string"})) {
 						if (player.getGame() != null) {
 							if (player.getLegitPlayer() > 98) {
 								GameLogic
@@ -280,7 +274,7 @@ public class Parser {
 					}
 					break;
 				case PREGR:
-					if (checkPacket(parts, 1, new String[] { "string" })) {
+					if (checkPacket(parts, 1, new String[]{"string"})) {
 						DataLogic.sendCSV(this.player);
 					} else {
 						ServerGUI.addToConsole("Wrongly formatted packet:"
@@ -289,7 +283,7 @@ public class Parser {
 					}
 					break;
 				case CURGR:
-					if (checkPacket(parts, 1, new String[] { "string" })) {
+					if (checkPacket(parts, 1, new String[]{"string"})) {
 						LobbyLogic.sendRunningGames(this.player);
 					} else {
 						ServerGUI.addToConsole("Wrongly formatted packet:"
@@ -298,7 +292,7 @@ public class Parser {
 					}
 					break;
 				case GCLDI:
-					if (checkPacket(parts, 2, new String[] { "string", "int" })) {
+					if (checkPacket(parts, 2, new String[]{"string", "int"})) {
 						GameLogic.sendCollidableDisabledToOtherPlayers(
 								this.player, parts[1]);
 					} else {
@@ -308,8 +302,8 @@ public class Parser {
 					}
 					break;
 				case GCLCR:
-					if (checkPacket(parts, 6, new String[] { "string", "int",
-							"double", "double", "double", "int" })) {
+					if (checkPacket(parts, 6, new String[]{"string", "int",
+							"double", "double", "double", "int"})) {
 						if (player.getGame() != null) {
 							if (player.getGame().addCollidableFromPacket(
 									Integer.parseInt(parts[1]), 0, 0, 0, 0)) {
@@ -334,7 +328,7 @@ public class Parser {
 					}
 					break;
 				case GCLRR:
-					if (checkPacket(parts, 2, new String[] { "string", "int" })) {
+					if (checkPacket(parts, 2, new String[]{"string", "int"})) {
 						if (player.getGame() != null) {
 							GameLogic.sendCollidableRemovedToOtherPlayers(
 									this.player, parts[1]);
@@ -351,7 +345,7 @@ public class Parser {
 					}
 					break;
 				case GCLRI:
-					if (checkPacket(parts, 2, new String[] { "string", "int" })) {
+					if (checkPacket(parts, 2, new String[]{"string", "int"})) {
 						if (player.getGame() != null) {
 							GameLogic.removeCollidableOutOfList(this.player,
 									parts[1]);
@@ -368,7 +362,7 @@ public class Parser {
 					}
 					break;
 				case GCEFI:
-					if (checkPacket(parts, 2, new String[] { "string", "int" })) {
+					if (checkPacket(parts, 2, new String[]{"string", "int"})) {
 						if (player.getGame() != null) {
 							GameLogic.sendEffectToOtherPlayers(this.player,
 									parts[1]);
@@ -387,16 +381,15 @@ public class Parser {
 				default:
 					break;
 			}
-		} else
-			if (player.getID() != 99999) {
-				ServerGUI.addToConsole("Unknown packet: " + inComPack
-						+ " from player: " + player.getName());
-			}
+		} else if (player.getID() != 99999) {
+			ServerGUI.addToConsole("Unknown packet: " + inComPack
+					+ " from player: " + player.getName());
+		}
 	}
 
 	/**
 	 * Method to catch and disregard bogus requests from clients.
-	 * 
+	 *
 	 * @return true if enum contains the command
 	 */
 	private boolean enumContains(String command) {
