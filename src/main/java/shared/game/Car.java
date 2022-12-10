@@ -91,7 +91,6 @@ public class Car {
 			}
 			// Car has default values
 		}
-
 	}
 
 	/*
@@ -134,16 +133,32 @@ public class Car {
 
 	public boolean getTurnRight() {
 		return switch (controlType) {
-			case SIMPLE -> inputRotationValid() && (rotation - getInputRotation() + 4 * Math.PI) % (2 * Math.PI) > Math.PI;
+			case SIMPLE -> inputRotationValid() && shortestRotationDirection(getCanonicalRotation(), getInputRotation()) > 0;
 			case TANK -> rightIsPressed;
 		};
 	}
 
 	public boolean getTurnLeft() {
 		return switch (controlType) {
-			case SIMPLE -> inputRotationValid() && (rotation - getInputRotation() + 4 * Math.PI) % (2 * Math.PI) < Math.PI;
+			case SIMPLE -> inputRotationValid() && shortestRotationDirection(getCanonicalRotation(), getInputRotation()) < 0;
 			case TANK -> leftIsPressed;
 		};
+	}
+
+	private int shortestRotationDirection(double currentRotation, double targetRotation) {
+		double diff = targetRotation - currentRotation;
+
+		// If we cannot approach the target direction closer by turning, return 0
+		double absDiff = Math.abs(diff);
+		if (absDiff <= handling / 2 || absDiff >= 2 * Math.PI - (handling / 2)) {
+			return 0;
+		}
+
+		if (diff >= Math.PI || (diff < 0 && Math.abs(diff) < Math.PI)) {
+			return -1;
+		} else {
+			return 1;
+		}
 	}
 
 	private void updateSpeedAndRotation(boolean accelerate, boolean brake, boolean turnRight, boolean turnLeft, double frictionCoefficient) {
@@ -217,7 +232,7 @@ public class Car {
 		if (leftIsPressed) {
 			x--;
 		}
-		return Math.atan2(y, x);
+		return (Math.atan2(y, x) + 2 * Math.PI) % (2 * Math.PI);
 	}
 
 	private boolean inputRotationValid() {
@@ -277,8 +292,18 @@ public class Car {
 		return speed;
 	}
 
+	/**
+	 * @return The rotation in the interval (-2Pi, 2Pi)
+	 */
 	public double getRotation() {
 		return rotation;
+	}
+
+	/**
+	 * @return The canonical rotation in the interval [0, 2Pi)
+	 */
+	public double getCanonicalRotation() {
+		return (rotation + 2 * Math.PI) % (2 * Math.PI);
 	}
 
 	public String getName() {
