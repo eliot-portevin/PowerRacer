@@ -1,6 +1,7 @@
 package client.lobby;
 
 import client.gui.ClientGUI;
+import shared.game.ControlType;
 import shared.game.PowerRacerGame;
 
 import javax.swing.*;
@@ -206,10 +207,11 @@ public class Client implements Runnable {
 	 * @param numberOfPlayers the number of human players participating in this game
 	 * @param carIndex        this players car index
 	 * @param carTypes        the selected car indexes needed to display the correct images
+	 * @param controlTypes    the car control types
 	 * @param raceTrackNumber the number of the selected track
 	 * @param playerNames     the names of the participating players
 	 */
-	public void startGame(int numberOfPlayers, int carIndex, int[] carTypes,
+	public void startGame(int numberOfPlayers, int carIndex, int[] carTypes, ControlType[] controlTypes,
 						  byte raceTrackNumber, String[] playerNames) {
 		if (raceTrackNumber == 4) {
 			try {
@@ -219,7 +221,7 @@ public class Client implements Runnable {
 			}
 		}
 		System.out.println("Setting game!");
-		game = new PowerRacerGame(numberOfPlayers, raceTrackNumber, carTypes, carIndex, commandQueue);
+		game = new PowerRacerGame(numberOfPlayers, raceTrackNumber, carTypes, controlTypes, carIndex, commandQueue);
 		game.setPlayerNames(playerNames);
 		clientGUI.startCamera(game);
 	}

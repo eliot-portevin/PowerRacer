@@ -6,23 +6,17 @@ import shared.game.PowerRacerGame;
 
 public class CountdownThread extends Thread {
 
-	private PowerRacerGame game;
+	private final PowerRacerGame game;
 
 	/**
 	 * Constructor for CountdownThread
-	 * 
-	 * @param game
-	 *            the game to be counted down
+	 *
+	 * @param game the game to be counted down
 	 */
 	public CountdownThread(PowerRacerGame game) {
 		this.game = game;
 	}
 
-	/**
-	 * Run-method for the CheckinServer, creates ServerSocket, accepts
-	 * connection and creates a new user for each connection in the
-	 * playermanager.
-	 */
 	public void run() {
 		try {
 			Thread.sleep(1000);
@@ -39,7 +33,7 @@ public class CountdownThread extends Thread {
 			}
 			GameLogic.startTimer(game);
 		} catch (Exception e) {
-			System.err.println("Countdown: " + e.toString());
+			System.err.println("Countdown: " + e);
 		}
 	}
 

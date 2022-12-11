@@ -193,9 +193,9 @@ public class Parser {
 					}
 					break;
 				case LOBRR:
-					if (checkPacket(parts, 2, new String[]{"string", "int"})) {
+					if (checkPacket(parts, 3, new String[]{"string", "int", "string"})) {
 						if (player.getLobby() != null) {
-							LobbyLogic.playerLobbyReady(this.player, parts[1]);
+							LobbyLogic.playerLobbyReady(this.player, parts[1], parts[2]);
 						} else {
 							ServerGUI
 									.addToConsole("Player: "

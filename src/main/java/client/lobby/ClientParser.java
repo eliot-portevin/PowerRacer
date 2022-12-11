@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import client.gui.ClientGUI;
+import shared.game.ControlType;
 import shared.game.RaceTrack;
 import shared.game.powerup.Inversion;
 import shared.game.powerup.Lightning;
@@ -420,7 +421,11 @@ class ClientParser {
 		client.commandQueue.add("LOBUR");
 		int numberOfPlayers = Integer.parseInt(parts[1]);
 		ArrayList<String> playerNames = new ArrayList<>(numberOfPlayers);
-		playerNames.addAll(Arrays.asList(parts).subList(numberOfPlayers + 4, parts.length));
+		playerNames.addAll(Arrays.asList(parts).subList(numberOfPlayers + 4, 2 * numberOfPlayers + 4));
+		ControlType[] controlTypes = new ControlType[numberOfPlayers];
+		for (int i = 0; i < numberOfPlayers; i++) {
+			controlTypes[i] = ControlType.valueOf(parts[2 * numberOfPlayers + 4 + i]);
+		}
 		int[] carIndices = new int[numberOfPlayers];
 		for (int i = 0; i < numberOfPlayers; i++) {
 			carIndices[i] = Integer.parseInt(parts[i + 3]);
@@ -428,7 +433,7 @@ class ClientParser {
 		client.startGame(
 				numberOfPlayers,
 				Integer.parseInt(parts[2]),
-				carIndices, Byte.parseByte(parts[numberOfPlayers + 3]),
+				carIndices, controlTypes, Byte.parseByte(parts[numberOfPlayers + 3]),
 				playerNames.toArray(new String[0]));
 	}
 

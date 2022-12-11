@@ -3,6 +3,7 @@ package server.lobby;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import shared.game.ControlType;
 import shared.game.PowerRacerGame;
 
 /**
@@ -22,6 +23,7 @@ public class Player {
 	private boolean isLobbyReady;
 	private PowerRacerGame game;
 	public int carIndex;
+	private ControlType controlType;
 	private long endTime;
 	private long startTime;
 	private int legitPlayer;
@@ -86,6 +88,14 @@ public class Player {
 
 	public int getCarIndex() {
 		return this.carIndex;
+	}
+
+	public void setControlType(ControlType controlType) {
+		this.controlType = controlType;
+	}
+
+	public ControlType getControlType() {
+		return controlType;
 	}
 
 	public void setStartTime(long currentTimeMillis) {

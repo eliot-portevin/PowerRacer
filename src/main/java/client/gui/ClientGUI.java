@@ -6,6 +6,7 @@ import server.discovery.DiscoveryServer;
 import server.lobby.CreateServer;
 import server.lobby.ServerGUI;
 import shared.game.Car;
+import shared.game.ControlType;
 import shared.game.PowerRacerGame;
 import shared.game.RaceTrack;
 import shared.game.powerup.Powerup;
@@ -35,6 +36,7 @@ public class ClientGUI {
 	public JFrame frame;
 	static boolean serverOn;
 	int select, resX = 1280, resY = 720, trackSelect, carSelect;
+	ControlType controlType = ControlType.TANK;
 	JLabel feedback, readyLabel, serverIp;
 	JList<String> list;
 	InetAddress[] addresses;
@@ -55,6 +57,8 @@ public class ClientGUI {
 			FULL_HIGH_DEFINITION_RESOLUTION_1080P = "1920x1080",
 			QUAD_HIGH_DEFINITION_RESOLUTION_1440P = "2560x1440",
 			QUAD_FULL_HIGH_DEFINITION_RESOLUTION_4K = "3840x2160";
+
+	public static final String TANK_CONTROLS = "Tank", SIMPLE_CONTROLS = "Directional";
 
 	public static void main(String[] args) {
 
@@ -188,7 +192,7 @@ public class ClientGUI {
 		if (message.length() > 0 && messageSplit.length > 0) {
 			setFeedback("");
 			switch (messageSplit[0]) {
-				case "\\w":
+				case "\\w" -> {
 					if (messageSplit.length > 2) {
 						client.commandQueue.add("CWHIR:"
 								+ client.name
@@ -200,39 +204,33 @@ public class ClientGUI {
 					} else {
 						addToChat("Whisper incomplete: Missing name or message!");
 					}
-					break;
-				case "\\a":
+				}
+				case "\\a" -> {
 					if (messageSplit.length > 1) {
 						client.commandQueue
 								.add("CALLR:" + message.substring(3));
 					} else {
 						addToChat("Missing message!");
 					}
-					break;
-				case "\\n":
+				}
+				case "\\n" -> {
 					if (messageSplit.length > 1) {
 						client.commandQueue.add("NAMCR:"
 								+ message.substring(3).replace(",", "."));
 					} else {
 						addToChat("Missing name!");
 					}
-					break;
-				case "\\l":
-					client.commandQueue.add("WHOOR");
-					break;
-				case "\\h":
-					client.commandQueue.add("PREGR");
-					break;
-				case "\\g":
-					client.commandQueue.add("CURGR");
-					break;
-				default:
+				}
+				case "\\l" -> client.commandQueue.add("WHOOR");
+				case "\\h" -> client.commandQueue.add("PREGR");
+				case "\\g" -> client.commandQueue.add("CURGR");
+				default -> {
 					if (lobby) {
 						client.commandQueue.add("CLOBR:" + message);
 					} else {
 						client.commandQueue.add("CALLR:" + message);
 					}
-					break;
+				}
 			}
 		}
 		ipField.setText("");
@@ -728,6 +726,19 @@ public class ClientGUI {
 			selectedCar.setText(Car.CAR_NAMES[carSelect]);
 		});
 
+		JLabel selectControlType = new JLabel("Select Controls:");
+		JComboBox<String> controlTypeSelection = new JComboBox<>(new String[]{TANK_CONTROLS, SIMPLE_CONTROLS});
+		controlTypeSelection.setSelectedItem(TANK_CONTROLS);
+		controlTypeSelection.setMaximumSize(toggleReadyButton.getSize());
+		controlTypeSelection.addActionListener(e -> {
+			switch ((String) Objects.requireNonNull(controlTypeSelection.getSelectedItem())) {
+				case TANK_CONTROLS -> controlType = ControlType.TANK;
+				case SIMPLE_CONTROLS -> controlType = ControlType.SIMPLE;
+				default -> {
+				}
+			}
+		});
+
 		// set GroupLayout for panel
 		GroupLayout layout = new GroupLayout(panel);
 		panel.setLayout(layout);
@@ -746,30 +757,35 @@ public class ClientGUI {
 								.addComponent(toggleReadyButton)
 								.addComponent(selectRes)
 								.addComponent(resolutionSelection)
+								.addComponent(selectControlType)
+								.addComponent(controlTypeSelection)
 								.addComponent(selectCar)
 								.addComponent(carSelection)
 								.addComponent(selectedCar)
-								.addComponent(sendButton)));
+								.addComponent(sendButton)
+				));
 
 		layout.setVerticalGroup(layout
 				.createSequentialGroup()
-				.addGroup(
-						layout.createParallelGroup()
-								.addComponent(scrollPane)
-								.addGroup(
-										layout.createSequentialGroup()
-												.addComponent(leaveLobbyButton)
-												.addComponent(readyLabel)
-												.addComponent(toggleReadyButton)
-												.addComponent(selectRes)
-												.addComponent(
-														resolutionSelection)
-												.addComponent(selectCar)
-												.addComponent(carSelection)
-												.addComponent(selectedCar)))
-				.addGroup(
-						layout.createParallelGroup().addComponent(ipField)
-								.addComponent(sendButton))
+				.addGroup(layout.createParallelGroup()
+						.addComponent(scrollPane)
+						.addGroup(
+								layout.createSequentialGroup()
+										.addComponent(leaveLobbyButton)
+										.addComponent(readyLabel)
+										.addComponent(toggleReadyButton)
+										.addComponent(selectRes)
+										.addComponent(resolutionSelection)
+										.addComponent(selectControlType)
+										.addComponent(controlTypeSelection)
+										.addComponent(selectCar)
+										.addComponent(carSelection)
+										.addComponent(selectedCar)
+						)
+				)
+				.addGroup(layout.createParallelGroup()
+						.addComponent(ipField)
+						.addComponent(sendButton))
 				.addComponent(feedback));
 
 		// set button action listeners
@@ -779,9 +795,8 @@ public class ClientGUI {
 			if (ready) {
 				client.commandQueue.add("LOBUR");
 			} else {
-				client.commandQueue.add("LOBRR:" + carSelect);
+				client.commandQueue.add("LOBRR:" + carSelect + ":" + controlType);
 			}
-
 		});
 
 		// add, pack and set visible
@@ -789,7 +804,6 @@ public class ClientGUI {
 		frame.pack();
 		frame.setVisible(true);
 		lobby = true;
-
 	}
 
 	/**

@@ -18,15 +18,15 @@ import server.lobby.LobbyLogic;
 import server.lobby.LobbyManager;
 import server.lobby.Player;
 import server.lobby.PlayerManager;
+import shared.game.ControlType;
 
 /**
  * This JUnit test not only tests the whole lobbylogic, it also checks if the
  * lobby, the playermanager, the server and the player objects are working
  * properly. Some tests check if the correct packet is sent, we assert this to
  * check the commandqueue for the corresponding packet.
- * 
- * @author benzumbrunn
  *
+ * @author benzumbrunn
  */
 public class LobbyLogicTest {
 
@@ -73,15 +73,9 @@ public class LobbyLogicTest {
 
 		// try to establish two sockets to the server. The server will create
 		// player-objects automatically for them.
-		try {
-			new Socket(host, port);
-			new Socket(host, port);
+		try (Socket ignored = new Socket(host, port); Socket ignored1 = new Socket(host, port)) {
 			Thread.sleep(1500);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 
@@ -119,19 +113,14 @@ public class LobbyLogicTest {
 	/**
 	 * This method creates a new joining player, because we need a new one in
 	 * several test instances and it should be available untouched.
-	 * 
+	 *
 	 * @return our newly created temporary player
 	 */
 	private Player createNewTemporaryPlayer() {
-		try {
+		try (Socket ignored = new Socket(host, port)) {
 			// create a new socket for the temporary player
-			new Socket(host, port);
 			Thread.sleep(50);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 
@@ -165,12 +154,7 @@ public class LobbyLogicTest {
 	 */
 	@Test
 	public void testPlayerManager() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(testPlayer.getName());
-		sb.append(':');
-		sb.append(testPlayerCopy.getName());
-		sb.append(':');
-		String assertionPacket = sb.toString();
+		String assertionPacket = testPlayer.getName() + ':' + testPlayerCopy.getName() + ':';
 
 		PlayerManager.playerList.clear();
 		PlayerManager.playerList.add(testPlayer);
@@ -478,7 +462,7 @@ public class LobbyLogicTest {
 		assertEquals(assertionPacket1, testPlayerCopy.commandQueue.remove());
 
 		// make sure that the private message didn't reach our temp player
-		assertTrue(shouldNotHearPlayer.commandQueue.peek() == null);
+		assertNull(shouldNotHearPlayer.commandQueue.peek());
 
 		// the sending player should also receive the message back, so he knows
 		// it's not denied
@@ -596,7 +580,7 @@ public class LobbyLogicTest {
 		LobbyLogic.removePlayerComplete(lobbyJoiningPlayer5);
 		LobbyLogic.removePlayerComplete(lobbyJoiningPlayer6);
 		LobbyLogic.removePlayerComplete(lobbyJoiningPlayer7);
-		
+
 
 		// the players need to leave the lobby
 		LobbyLogic.leaveLobby(testPlayer, testPlayer.getLobby().getLobbyID());
@@ -696,15 +680,10 @@ public class LobbyLogicTest {
 		}
 		// create one more player which should not be able to join the server
 		// create a new socket for the temporary player
-		try {
+		try (Socket ignored = new Socket(host, port)) {
 			// create a new socket for the temporary player
-			new Socket(host, port);
 			Thread.sleep(1500);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 		// the playermanager should not hold that user
@@ -753,7 +732,7 @@ public class LobbyLogicTest {
 	/**
 	 * Test method for asserting that a player can set his status in the lobby
 	 * as ready to play.
-	 * {@link server.lobby.LobbyLogic#playerLobbyReady(server.lobby.Player, java.lang.String)}
+	 * {@link server.lobby.LobbyLogic#playerLobbyReady(server.lobby.Player, java.lang.String, java.lang.String)}
 	 * .
 	 */
 	@Test
@@ -764,7 +743,7 @@ public class LobbyLogicTest {
 
 		// the tested method needs the car index as a string
 		String carIndex = String.valueOf(testPlayer.getCarIndex());
-		LobbyLogic.playerLobbyReady(testPlayer, carIndex);
+		LobbyLogic.playerLobbyReady(testPlayer, carIndex, ControlType.TANK.toString());
 
 		// assert that the function has taken effect
 		assertTrue(testPlayer.getLobbyReady());
@@ -780,8 +759,8 @@ public class LobbyLogicTest {
 		testPlayerCopy.setLobbyReady(true);
 		testGamer1.setLobbyReady(true);
 		testGamer2.setLobbyReady(true);
-		LobbyLogic.playerLobbyReady(testPlayer, "0");
-		assertFalse(GameManager.getGamelist().size() == 0);
+		LobbyLogic.playerLobbyReady(testPlayer, "0", ControlType.TANK.toString());
+		assertNotEquals(0, GameManager.getGamelist().size());
 
 		// the players need to leave the lobby
 		LobbyLogic.leaveLobby(testPlayer, testPlayer.getLobby().getLobbyID());
@@ -834,7 +813,7 @@ public class LobbyLogicTest {
 		testPlayerCopy.setLobbyReady(true);
 		testGamer1.setLobbyReady(true);
 		testGamer2.setLobbyReady(true);
-		LobbyLogic.playerLobbyReady(testPlayer, "0");
+		LobbyLogic.playerLobbyReady(testPlayer, "0", ControlType.TANK.toString());
 
 		// run our method to test
 		LobbyLogic.sendRunningGames(testPlayer);

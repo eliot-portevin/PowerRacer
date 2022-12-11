@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import server.game.GameLogic;
 import server.game.GameManager;
+import shared.game.ControlType;
 
 /**
  * LobbyLogic handles all the lobby related things like creation, joining,
@@ -324,14 +325,15 @@ public class LobbyLogic {
 	 * Sets the player in a Lobby to ready and checks if all the players in this
 	 * Lobby are ready.
 	 * 
-	 * @param parts
+	 * @param car
 	 *            boolean if ready or not
 	 */
-	public static void playerLobbyReady(Player player, String parts) {
+	public static void playerLobbyReady(Player player, String car, String controlType) {
 		player.setLobbyReady(true);
-		player.setCarIndex(Integer.parseInt(parts));
+		player.setCarIndex(Integer.parseInt(car));
+		player.setControlType(ControlType.valueOf(controlType));
 		player.commandQueue.add("LOBRA:");
-		if (LobbyManager.isLobbyReady(player.getLobby()) == true) {
+		if (LobbyManager.isLobbyReady(player.getLobby())) {
 			GameManager.addGame(player.getLobby());
 		}
 	}

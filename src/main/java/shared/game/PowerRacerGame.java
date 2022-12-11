@@ -48,7 +48,7 @@ public class PowerRacerGame {
 	 * @param carIndex        the car index of this players car
 	 * @param commandQueue    the command queue needed to send packets to the server
 	 */
-	public PowerRacerGame(int numberOfPlayers, byte trackIdentifier, int[] carTypes, int carIndex, BlockingQueue<String> commandQueue) {
+	public PowerRacerGame(int numberOfPlayers, byte trackIdentifier, int[] carTypes, ControlType[] controlTypes, int carIndex, BlockingQueue<String> commandQueue) {
 		this.numberOfPlayers = numberOfPlayers;
 		this.trackIdentifier = trackIdentifier;
 		this.carIndex = carIndex;
@@ -61,8 +61,7 @@ public class PowerRacerGame {
 			/*
 			 * Creates cars from car file (x-carpos,y-carpos,cartype)
 			 */
-			cars[i] = new Car(setStartingPositionX(i), setStartingPositionY(i), carTypes[i], this, ControlType.TANK); // change last argument to change
-			// cartypes
+			cars[i] = new Car(setStartingPositionX(i), setStartingPositionY(i), carTypes[i], this, controlTypes[i]);
 		}
 		for (int i = 0; i < track.numberOfItemBoxes(); i++) {
 			addToCollidables(new PowerupBox(
@@ -513,7 +512,7 @@ public class PowerRacerGame {
 	}
 
 	public boolean addCollidableFromPacket(int collidableIdentifier, double x,
-			double y, double rotation, int id) {
+										   double y, double rotation, int id) {
 		Collidable collidable = null;
 		switch (collidableIdentifier) {
 			case 0 -> collidable = new RocketCollidable(x, y, rotation, this, id);
